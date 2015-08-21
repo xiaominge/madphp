@@ -1,0 +1,50 @@
+{
+    "name": "madphp/madphp",
+    "description": "Madphp framework.",
+    "keywords": ["framework", "madphp", "php"],
+    "license": "MIT",
+
+    "authors": [
+        {
+            "name": "Yakun.Xu",
+            "email": "hdyakun@sina.com"
+        }
+    ],
+
+    "require": {
+        "filp/whoops": "*",
+        "predis/predis": "*"
+    },
+
+    "autoload": {
+        "files": [
+            "function/common.php",
+            "function/str.php",
+            "function/array.php",
+            "function/dir.php",
+            "function/html.php",
+            "function/url.php"
+        ],
+        "classmap": [
+            "core",
+	        "helper"
+        ]
+    },
+    
+    "config": {
+        "preferred-install": "dist"
+    },
+    
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/nrk/predis.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/filp/whoops.git"
+        },
+        
+        {"packagist": false}
+    ]
+}
