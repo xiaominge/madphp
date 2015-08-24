@@ -7,6 +7,7 @@
 
 namespace Madphp\Src\Core;
 use Madphp\Src\Core\Http\Util as Util;
+use Madphp\Src\Util\Validate as Validate;
 
 class Request extends Http\Request
 {
@@ -34,7 +35,7 @@ class Request extends Http\Request
                         $spoof = $spoof[0];
                     }
 
-                    if (!Validator::ip($spoof)) {
+                    if (!Validate::ip($spoof)) {
                         $spoof = FALSE;
                     } else {
                         break;
@@ -47,7 +48,7 @@ class Request extends Http\Request
             self::$requestInstance->ipAddress = $_SERVER['REMOTE_ADDR'];
         }
 
-        if (!Validator::ip(self::$requestInstance->ipAddress)) {
+        if (!Validate::ip(self::$requestInstance->ipAddress)) {
             self::$requestInstance->ipAddress = '0.0.0.0';
         }
 

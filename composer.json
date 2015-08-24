@@ -28,7 +28,7 @@
         ],
         "classmap": [
             "core",
-	        "helper"
+	        "util"
         ]
     },
 

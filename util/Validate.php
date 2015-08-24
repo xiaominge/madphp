@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Validator
+ * Validate
  * @author 徐亚坤 hdyakun@sina.com
  */
 
 namespace Madphp\Src\Core;
 
-class Validator
+class Validate
 {
     /**
      * 检测邮箱
@@ -174,13 +174,15 @@ class Validator
     }
 
     /**
-     * 检测UTF-8汉字
+     * 检测汉字
      * @param $str
+     * @param $encoding
      * @return bool
      */
-    public static function chinese($str)
+    public static function chinese($str, $encoding = 'utf8')
     {
-        return preg_match('/^[\x{4e00}-\x{9fa5}]+$/u', $str) > 0 ? true : false;
+        $regexp = $encoding == 'utf8' ? '/^[\x{4e00}-\x{9fa5}]+$/u' : '/^([\x80-\xFF][\x80-\xFF])+$/';
+        return preg_match($regexp, $str) > 0 ? true : false;
     }
 
     /**
@@ -202,5 +204,49 @@ class Validator
     {
         json_decode($str);
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    /**
+     * 判断数值是否在某个区间内
+     *
+     * @access public
+     * @static
+     * @param interger $Mum 当前数值
+     * @param interger $min 最小值
+     * @param interger $max 最大值
+     * @return boolean
+     * @example Validate::valBetween( 97, 4 ,10);
+     */
+    public static function valBetween($number, $min, $max)
+    {
+        if ( $number > $max ) return false;
+        if ( $number < $min ) return false;
+        return true;
+    }
+
+    /**
+     * lenBetween 字符串长度判断是否在某个区间内
+     *
+     * @access public
+     * @static
+     * @param string   $string  需要匹配的字符串
+     * @param interger $min     最小长度
+     * @param interger $max     最大长度
+     * @return boolean
+     * @example Validate::lenBetween( 'Nickname' );
+     */
+    public static function lenBetween($string, $min = 4, $max = 16, $charset = 'utf-8')
+    {
+        $string = trim($string);
+        if ( ! in_array($charset, array('gb2312', 'gbk', 'utf-8', 'utf8') ) ) return false;
+        if ( $charset == 'gb2312' or $charset == 'gbk' ) {
+            $string = iconv("utf-8", "gbk", $string);
+            $length = strlen($string);
+        } elseif ( $charset == 'utf-8' or $charset == 'utf8' ) {
+            $length = mb_strlen($string, $charset);
+        }
+        if ( $length < $min ) return false;
+        if ( $length > $max ) return false;
+        return true;
     }
 }
