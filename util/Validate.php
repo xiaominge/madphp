@@ -5,7 +5,7 @@
  * @author 徐亚坤 hdyakun@sina.com
  */
 
-namespace Madphp\Src\Core;
+namespace Madphp\Src\Util;
 
 class Validate
 {
