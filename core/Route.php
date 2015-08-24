@@ -7,32 +7,23 @@
 
 namespace Madphp\Src\Core;
 
-/**
- * @method static Route get(string $route, Callable $callback)
- * @method static Route post(string $route, Callable $callback)
- * @method static Route put(string $route, Callable $callback)
- * @method static Route delete(string $route, Callable $callback)
- * @method static Route options(string $route, Callable $callback)
- * @method static Route head(string $route, Callable $callback)
- */
 class Route
 {
-
-    public static $halts = false;
-
     public static $routes = array();
 
     public static $methods = array();
 
     public static $callbacks = array();
 
+    public static $halts = false;
+    public static $foundRoute = false;
+    public static $errorCallback;
+
     public static $patterns = array(
         ':any' => '[^/]+',
         ':num' => '[0-9]+',
         ':all' => '.*'
     );
-
-    public static $errorCallback;
 
     public static function __callstatic($method, $params)
     {
@@ -56,70 +47,74 @@ class Route
 
     public static function dispatch()
     {
-        $foundRoute = false;
-        // $method = $_SERVER['REQUEST_METHOD'];
+        // REST
         $method = Request::getMethod();
         $urlPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $pathinfo = pathinfo($_SERVER['SCRIPT_NAME']);
         $fileDir = $pathinfo['dirname'];
         $fileName = $pathinfo['basename'];
-        
         $uri = ltrim(str_replace(array($fileName, $fileDir), array('', ''), $urlPath), '/');
 
-        $searches = array_keys(static::$patterns);
-        $replaces = array_values(static::$patterns);
-
-        // 存在此路由
         if (in_array($uri, self::$routes)) {
-            // 路由的键
-            $routePos = array_keys(self::$routes, $uri);
-            foreach ($routePos as $pos) {
-                // 请求方法相同
-                if (self::$methods[$pos] == $method) {
-                    $foundRoute = true;
-                    $ret = self::_dispatch($pos);
-                    if($ret === false) return;
-                }
-            }
+            self::_exact_dispatch($method, $uri);
         } else {
-            $pos = 0;
-            foreach (self::$routes as $route) {
-                // 包含 : 确定是模糊路由
-                if (strpos($route, ':') !== false) {
-                    // 替换模糊路由为正则表达式的模式
-                    $route = str_replace($searches, $replaces, $route);
-                    // 路由匹配成功
-                    if (preg_match('#^' . $route . '$#', $uri, $matched)) {
-                        // 请求方法相同
-                        if (self::$methods[$pos] == $method) {
-                            $foundRoute = true;
-                            array_shift($matched);
-                            $ret = self::_dispatch($pos, $matched);
-                            if($ret === false) return;
-                        }
-                    }
-                }
-                $pos++;
-            }
+            self::_regular_dispatch($method, $uri);
         }
 
         // 路由未找到
-        if ($foundRoute == false) {
+        if (self::$foundRoute == false) {
             self::_error404();
         }
     }
 
-    private static function _error404()
+    // 精准匹配
+    private static function _exact_dispatch($method, $uri)
     {
-        if (!self::$errorCallback) {
-            self::$errorCallback = function() {
-                header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
-                echo '404';
-            };
+        // 路由的键
+        $routePos = array_keys(self::$routes, $uri);
+        foreach ($routePos as $pos) {
+            // 请求方法相同
+            if (self::$methods[$pos] == $method) {
+                self::$foundRoute = true;
+                $ret = self::_dispatch($pos);
+                if($ret === false) return;
+            }
         }
-        call_user_func(self::$errorCallback);
     }
 
+    // 模糊匹配
+    private static function _fuzzy_dispatch($method, $uri)
+    {
+        
+    }
+
+    // 正则模糊匹配
+    private static function _regular_dispatch($method, $uri)
+    {
+        $pos = 0;
+        $searches = array_keys(static::$patterns);
+        $replaces = array_values(static::$patterns);
+        foreach (self::$routes as $route) {
+            // 包含 : 确定是模糊路由
+            if (strpos($route, ':') !== false) {
+                // 替换模糊路由为正则表达式的模式
+                $route = str_replace($searches, $replaces, $route);
+                // 路由匹配成功
+                if (preg_match('#^' . $route . '$#', $uri, $matched)) {
+                    // 请求方法相同
+                    if (self::$methods[$pos] == $method) {
+                        self::$foundRoute = true;
+                        array_shift($matched);
+                        $ret = self::_dispatch($pos, $matched);
+                        if($ret === false) return;
+                    }
+                }
+            }
+            $pos++;
+        }
+    }
+
+    // 调用处理方法
     private static function _dispatch($pos, $matched = null)
     {
         // 回调函数不是对象
@@ -145,5 +140,16 @@ class Route
         // 是否停止执行此路由的其他回调函数
         if (self::$halts) return false;
         return true;
+    }
+
+    private static function _error404()
+    {
+        if (!self::$errorCallback) {
+            self::$errorCallback = function() {
+                header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
+                echo '404';
+            };
+        }
+        call_user_func(self::$errorCallback);
     }
 }
