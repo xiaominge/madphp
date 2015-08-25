@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Helper
+ * Html
  * @author 徐亚坤 hdyakun@sina.com
  */
 
