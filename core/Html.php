@@ -1,22 +1,26 @@
 <?php
 
 /**
- * Widget
+ * Html
  * @author 徐亚坤 hdyakun@sina.com
  */
 
-namespace Madphp\Src\Core\View;
-use Madphp\Src\Core\Config;
+namespace Madphp\Src\Core;
+use Madphp\Src\Core\Html\Helper;
 
-class Widget
+class Html
 {
-
+    public static function __callStatic($method, $parameters)
+    {
+        return call_user_func_array(array(new Helper, $method), $parameters);
+    }
+    
     /**
      * 图片别名加载
      * @param  dynamic  mixed  配置文件中的别名
      * @return string
      */
-    static function img()
+    public static function img()
     {
         $configKey = func_get_arg(0);
         list($file, $key) = explode('.', $configKey);
@@ -25,7 +29,7 @@ class Widget
         $imgAliases = Config::get($file, $key);
         $imgArray = array_map(function ($aliases) use ($imgAliases) {
             if (isset($imgAliases[$aliases])) {
-                return Html::image($imgAliases[$aliases]);
+                return self::image($imgAliases[$aliases]);
             }
         }, $args);
         return implode('', array_filter($imgArray));
@@ -36,7 +40,7 @@ class Widget
      * @param  dynamic  mixed  配置文件中的别名
      * @return string
      */
-    static function style()
+    public static function css()
     {
         $configKey = func_get_arg(0);
         list($file, $key) = explode('.', $configKey);
@@ -45,7 +49,7 @@ class Widget
         $cssAliases = Config::get($file, $key);
         $styleArray = array_map(function ($aliases) use ($cssAliases) {
             if (isset($cssAliases[$aliases])) {
-                return Html::style($cssAliases[$aliases]);
+                return self::style($cssAliases[$aliases]);
             }
         }, $args);
         return implode('', array_filter($styleArray));
@@ -56,7 +60,7 @@ class Widget
      * @param  dynamic  mixed  配置文件中的别名
      * @return string
      */
-    static function script()
+    public static function js()
     {
         $configKey = func_get_arg(0);
         list($file, $key) = explode('.', $configKey);
@@ -65,9 +69,10 @@ class Widget
         $jsAliases = Config::get($file, $key);
         $scriptArray = array_map(function ($aliases) use ($jsAliases) {
             if (isset($jsAliases[$aliases])) {
-                return Html::script($jsAliases[$aliases]);
+                return self::script($jsAliases[$aliases]);
             }
         }, $args);
         return implode('', array_filter($scriptArray));
     }
 }
+

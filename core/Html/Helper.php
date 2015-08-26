@@ -1,19 +1,11 @@
 <?php
 
 /**
- * Html
+ * Helper
  * @author 徐亚坤 hdyakun@sina.com
  */
 
-namespace Madphp\Src\Core\View;
-
-class Html
-{
-    public static function __callStatic($method, $parameters)
-    {
-        return call_user_func_array(array(new Helper, $method), $parameters);
-    }
-}
+namespace Madphp\Src\Core\Html;
 
 class Helper
 {

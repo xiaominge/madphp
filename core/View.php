@@ -7,14 +7,19 @@
 
 namespace Madphp\Src\Core;
 use Madphp\Src\Core\View\Layout as Layout;
+use Madphp\Src\Core\View\Compiler as Compiler;
+use Madphp\Src\Core\View\Util as ViewUtil;
 
 class View
 {
     public $data;
     public $view;
+    public $viewName;
     public $isLayout = true;
     public $layout;
-
+    public $isCompiler = true;
+    public $compiler;
+    
     public function __construct($viewName)
     {
 
@@ -25,13 +30,14 @@ class View
         if(!$viewName) {
             throw new \InvalidArgumentException("View name can not be empty!");
         } else {
-            $viewFile = self::getFilePath($viewName);
+            $viewFile = ViewUtil::getFilePath($viewName);
             if (!is_file($viewFile)) {
                 throw new \UnexpectedValueException("View file does not exist!");
             }
         }
 
         $this->view = $viewFile;
+        $this->viewName = $viewName;
         $this->data = array();
     }
 
@@ -39,6 +45,7 @@ class View
     {
         $object = new self($viewName);
         $object->layout = new Layout();
+        $object->compiler = new Compiler();
         return $object;
     }
 
@@ -56,7 +63,7 @@ class View
      */
     public function complete()
     {
-        $output = self::render($this);
+        $output = ViewUtil::render($this);
         return $output;
     }
 
@@ -65,7 +72,7 @@ class View
      */
     public function show()
     {
-        $output = self::render($this);
+        $output = ViewUtil::render($this);
         Response::setBody($output);
         $ret = Response::send();
         if (!$ret) {
@@ -99,6 +106,32 @@ class View
             $object->layout->setLayout(strval($layoutName));
         }
     }
+    
+    /**
+     * 是否启用模板引擎
+     */
+    public function isCompiler($isCompiler, $object = null)
+    {
+        if (is_object($object) && ($object instanceof View)) {
+            $object->isCompiler = boolval($isCompiler);
+        } else {
+            $this->isCompiler = boolval($isCompiler);
+        }
+    }
+
+    /**
+     * 设置布局文件
+     */
+    public function setCompiler($compilerEngineName = null, $object = null)
+    {
+        if (!is_object($object) or !($object instanceof View)) {
+            $object = $this;
+        }
+
+        if ($object->isCompiler) {
+            $object->compiler->setCompiler(strval($compilerEngineName));
+        }
+    }
 
     /**
      * 多用于加载局部模板文件
@@ -108,50 +141,7 @@ class View
     {
         $object = self::make($template);
         $object->isLayout($isLayout, $object);
-        return self::render($object, $data);
-    }
-
-    /**
-     * 渲染模板文件
-     */
-    protected static function render($object, $data = null)
-    {
-        $data = array_merge((array) $object->data, (array) $data);
-        if ($object->isLayout) {
-            $output = self::_render($object, $data);
-
-            $layoutName = 'layout.' . $object->layout->layoutName;
-            $object->layout->set('content', $output);
-            $allData = array_merge($data, array('layoutData' => $object->layout->data));
-            $allOutput = $object->fetch($layoutName, $allData);
-            return $allOutput;
-        } else {
-            return self::_render($object, $data);
-        }
-    }
-
-    /**
-     * 渲染模板文件
-     */
-    protected static function _render($object, $data = null)
-    {
-        if ($object instanceof View) {
-            extract($data);
-            ob_start();
-            require $object->view;
-            $output = ob_get_contents();
-            ob_end_clean();
-
-            return $output;
-        } else {
-            throw new \UnexpectedValueException("\$object must be instance of View!");
-        }
-    }
-
-    protected static function getFilePath($viewName)
-    {
-        $filePath = str_replace('.', '/', $viewName);
-        return VIEW_PATH . $filePath . '.php';
+        return ViewUtil::render($object, $data);
     }
 
     public function __call($method, $parameters)
