@@ -10,7 +10,6 @@ use Madphp\Src\Core\View as View;
 
 class Util
 {
-
     /**
      * 渲染模板文件
      */
@@ -18,13 +17,16 @@ class Util
     {
         $data = array_merge((array) $object->data, (array) $data);
         if ($object->isLayout) {
-            $output = self::_render($object, $data);
 
-            $layoutName = 'layout.' . $object->layout->layoutName;
+            if (!defined('LAYOUT_FOLDER')) {
+                throw new \InvalidArgumentException("LAYOUT_FOLDER is undefined!");
+            }
+
+            $output = self::_render($object, $data);
+            $layoutName = LAYOUT_FOLDER . '.' . $object->layout->layoutName;
             $object->layout->set('content', $output);
             $allData = array_merge($data, array('layoutData' => $object->layout->data));
-            $allOutput = $object->fetch($layoutName, $allData);
-            return $allOutput;
+            return $object->fetch($layoutName, $allData);
         } else {
             return self::_render($object, $data);
         }

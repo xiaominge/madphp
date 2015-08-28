@@ -11,11 +11,17 @@ class Compiler
 {
     public $data = array();
     
-    public $engineName = 'litwit';
+    public $defaultEngineName = 'litwit';
 
-    public function __construct()
+    public $engineName = null;
+
+    public function __construct($engineName = null)
     {
-        
+        if (!empty($engineName)) {
+            $this->engineName = $engineName;
+        } else {
+            $this->engineName = $this->defaultEngineName;
+        }
     }
 
     public function set($key, $val)
@@ -54,8 +60,7 @@ class Compiler
     {
         $engineName = __NAMESPACE__."\\Compiler\\".ucfirst($this->engineName);
         $engine = new $engineName;
-        $parseStr = $engine->parse($str);
-        return $parseStr;
+        return $engine->parse($str);
     }
     
 }

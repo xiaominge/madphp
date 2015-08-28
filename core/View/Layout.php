@@ -10,6 +10,7 @@ namespace Madphp\Src\Core\View;
 class Layout
 {
     public $data = array();
+
     public $layoutName = 'default';
 
     public function __construct()

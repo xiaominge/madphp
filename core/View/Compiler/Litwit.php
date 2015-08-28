@@ -25,10 +25,10 @@ class Litwit
     }
 
     /**
-    * 解析模板
-    * @param $str	模板内容
-    * @return $str
-    */
+     * 解析模板
+     * @param $str	模板内容
+     * @return $str
+     */
     public function parse($str)
     {
         $str = $this->parseIf($str);
@@ -79,8 +79,7 @@ class Litwit
      */
     public function parsePhp($str)
     {
-        $str = preg_replace("/{{{([\s\S]*)}}}/U", "<?php \\1 ?>", $str);
-        return $str;
+        return preg_replace("/{{{([\s\S]*)}}}/U", "<?php \\1 ?>", $str);
     }
 
     /**
@@ -90,8 +89,7 @@ class Litwit
      */
     public function parseIf($str)
     {
-        $str = preg_replace("/{{\s*if\s+(.+?)\s*}}/", "<?php if (\\1): ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*if\s+(.+?)\s*}}/", "<?php if (\\1): ?>", $str);
     }
 
     /**
@@ -101,8 +99,7 @@ class Litwit
      */
     public function parseEndif($str)
     {
-        $str = preg_replace("/{{\s*\/if\s*}}/", "<?php endif; ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*\/if\s*}}/", "<?php endif; ?>", $str);
     }
 
     /**
@@ -112,8 +109,7 @@ class Litwit
      */
     public function parseElse($str)
     {
-        $str = preg_replace("/{{\s*else\s*}}/", "<?php else: ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*else\s*}}/", "<?php else: ?>", $str);
     }
 
     /**
@@ -123,8 +119,7 @@ class Litwit
      */
     public function parseElseif($str)
     {
-        $str = preg_replace("/{{\s*elseif\s+(.+?)\s*}}/", "<?php elseif (\\1): ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*elseif\s+(.+?)\s*}}/", "<?php elseif (\\1): ?>", $str);
     }
 
     /**
@@ -134,8 +129,7 @@ class Litwit
      */
     public function parseFor($str)
     {
-        $str = preg_replace("/{{\s*for\s+(.+?)\s*}}/", "<?php for (\\1): ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*for\s+(.+?)\s*}}/", "<?php for (\\1): ?>", $str);
     }
 
     /**
@@ -145,8 +139,7 @@ class Litwit
      */
     public function parseEndfor($str)
     {
-        $str = preg_replace("/{{\s*\/for\s*}}/", "<?php endfor; ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*\/for\s*}}/", "<?php endfor; ?>", $str);
     }
 
     /**
@@ -156,8 +149,7 @@ class Litwit
      */
     public function parseForeach($str)
     {
-        $str = preg_replace("/{{\s*loop(.+?)\s*}}/", "<?php foreach \\1: ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*loop(.+?)\s*}}/", "<?php foreach \\1: ?>", $str);
     }
 
     /**
@@ -167,8 +159,7 @@ class Litwit
      */
     public function parseEndforeach($str)
     {
-        $str = preg_replace("/{{\s*\/loop\s*}}/", "<?php endforeach; ?>", $str);
-        return $str;
+        return preg_replace("/{{\s*\/loop\s*}}/", "<?php endforeach; ?>", $str);
     }
 
 }

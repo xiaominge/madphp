@@ -12,17 +12,22 @@ use Madphp\Src\Core\View\Util as ViewUtil;
 
 class View
 {
-    public $data;
     public $view;
+
     public $viewName;
-    public $isLayout = true;
+
     public $layout;
-    public $isCompiler = true;
+
     public $compiler;
+
+    public $data = array();
+
+    public $isLayout = true;
+
+    public $isCompiler = true;
     
     public function __construct($viewName)
     {
-
         if (!defined('VIEW_PATH')) {
             throw new \InvalidArgumentException("VIEW_PATH is undefined!");
         }
@@ -38,15 +43,18 @@ class View
 
         $this->view = $viewFile;
         $this->viewName = $viewName;
-        $this->data = array();
+        $this->layout = new Layout();
+        $this->compiler = new Compiler();
     }
 
+    /**
+     * 获取视图对象
+     * @param null $viewName
+     * @return View
+     */
     public static function make($viewName = null)
     {
-        $object = new self($viewName);
-        $object->layout = new Layout();
-        $object->compiler = new Compiler();
-        return $object;
+        return new self($viewName);
     }
 
     /**
@@ -78,7 +86,6 @@ class View
         if (!$ret) {
             throw new \Exception("View output error!");
         }
-        return true;
     }
 
     /**
@@ -120,7 +127,7 @@ class View
     }
 
     /**
-     * 设置布局文件
+     * 设置模板引擎
      */
     public function setCompiler($compilerEngineName = null, $object = null)
     {
