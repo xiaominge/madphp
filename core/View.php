@@ -71,8 +71,7 @@ class View
      */
     public function complete()
     {
-        $output = ViewUtil::render($this);
-        return $output;
+        return ViewUtil::render($this);
     }
 
     /**
@@ -86,6 +85,7 @@ class View
         if (!$ret) {
             throw new \Exception("View output error!");
         }
+        return true;
     }
 
     /**

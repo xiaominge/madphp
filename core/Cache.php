@@ -10,6 +10,7 @@ namespace Madphp\Src\Core;
 class Cache
 {
     public $instance;
+
     public function __construct($storage = "", $config = array())
     {
         $this->instance = Cache\Factory::instance($storage, $config);
@@ -24,9 +25,14 @@ class Cache
         }
     }
 
+    /**
+     * 检测缓存驱动是否存在
+     * @param $name
+     * @return bool
+     */
     public static function isExistingDriver($name)
     {
-        return Cache\Base::isExistingDriver($name);
+        return Cache\Provider::isExistingDriver($name);
     }
 
 }

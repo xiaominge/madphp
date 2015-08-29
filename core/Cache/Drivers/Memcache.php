@@ -1,11 +1,10 @@
 <?php
 
 namespace Madphp\Src\Core\Cache\Drivers;
-use Madphp\Src\Core\Cache\Base;
+use Madphp\Src\Core\Cache\Provider;
 use Madphp\Src\Core\Cache\Driver;
 
-
-class Memcache extends Base implements Driver
+class Memcache extends Provider implements Driver
 {
 
     var $instant;
@@ -13,7 +12,7 @@ class Memcache extends Base implements Driver
     function checkDriver()
     {
         // Check memcache
-        if (function_exists("\memcache_connect")) {
+        if (function_exists("\\memcache_connect")) {
             return true;
         }
 	    $this->fallback = true;
@@ -26,7 +25,7 @@ class Memcache extends Base implements Driver
         if (!$this->checkDriver() && !isset($config['skipError'])) {
 	        $this->fallback = true;
         }
-	    if (class_exists("\Memcache")) {
+	    if (class_exists("\\Memcache")) {
 		    $this->instant = new \Memcache();
 	    } else {
 		    $this->fallback = true;

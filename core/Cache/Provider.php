@@ -2,7 +2,7 @@
 
 namespace Madphp\Src\Core\Cache;
 
-abstract class Base
+abstract class Provider
 {
 
     var $tmp = array();
@@ -270,35 +270,6 @@ abstract class Base
         return Instance::get(Factory::$config['fallback']);
     }
 
-    protected function readfile($file)
-    {
-        if (function_exists("file_get_contents")) {
-            return file_get_contents($file);
-        } else {
-            $string = "";
-
-            $file_handle = @fopen($file, "r");
-            if (!$file_handle) {
-                throw new \Exception("Can't Read File", 96);
-            }
-            while (!feof($file_handle)) {
-                $line = fgets($file_handle);
-                $string .= $line;
-            }
-            fclose($file_handle);
-
-            return $string;
-        }
-    }
-
-    /*
-     * return PATH for File & PDO only
-     */
-    public function getPath($create_path = false)
-    {
-        return Factory::getPath($create_path, $this->option);
-    }
-
     /*
      * Object for File & SQLite
      */
@@ -318,36 +289,6 @@ abstract class Base
     }
 
     /*
-     * Auto Create .htaccess to protect cache folder
-     */
-    protected function htaccessGen($path = "")
-    {
-        if ($this->option("htaccess") == true) {
-            if (!file_exists($path."/.htaccess")) {
-                //   echo "write me";
-                $html = "order deny, allow \r\ndeny from all \r\nallow from 127.0.0.1";
-
-                $f = @fopen($path."/.htaccess", "w+");
-                if (!$f) {
-                    throw new \Exception("Can't create .htaccess", 97);
-                }
-                fwrite($f, $html);
-                fclose($f);
-            } else {
-                // echo "got me";
-            }
-        }
-    }
-
-    /*
-    * Check phpModules or CGI
-    */
-    protected function isPHPModule()
-    {
-       return Factory::isPHPModule();
-    }
-
-    /*
      * return System Information
      */
     public function systemInfo()
@@ -358,16 +299,16 @@ abstract class Base
             
             $this->option['system']['storage'] = "file";
             $this->option['system']['storages'] = array();
-            $dir = @opendir(dirname(__FILE__)."/Drivers/");
+            $dir = @opendir(dirname(__FILE__) . "/Drivers/");
             if (!$dir) {
                 throw new \Exception("Can't open file dir ext", 100);
             }
 
             while ($file = @readdir($dir)) {
                 if ($file != "." && $file != ".." && strpos($file, ".php") !== false) {
-                    require_once(dirname(__FILE__)."/Drivers/".$file);
+                    require_once(dirname(__FILE__) . "/Drivers/" . $file);
                     $namex = str_replace(".php", "", $file);
-                    $class = __NAMESPACE__."\Drivers\\".$namex;
+                    $class = __NAMESPACE__."\\Drivers\\".$namex;
                     $this->option['skipError'] = true;
                     $driver = new $class($this->option);
                     $driver->option = $this->option;
@@ -380,15 +321,12 @@ abstract class Base
                 }
             }
 
-            // PDO is highest priority with SQLite
             if (isset($this->option['system']['storages']['sqlite']) && $this->option['storages']['sqlite'] == true) {
                 $this->option['system']['storage'] = "sqlite";
             }
         }
-        
-        $class = __NAMESPACE__."\Drivers\Example";
-        $example = new $class($this->option);
-        $this->option("path", $example->getPath(true));
+
+        $this->option("path", self::getPath(true));
         
         $systemInfo = $this->option;
         $this->option = $backup_option;
@@ -435,8 +373,44 @@ abstract class Base
         return false;
     }
 
+    /*
+     * return PATH for File & PDO only
+     */
+    public function getPath($create_path = false)
+    {
+        return Factory::getPath($create_path, $this->option);
+    }
+
     protected function setChmodAuto()
     {
         return Factory::setChmodAuto($this->option);
     }
+
+    /**
+     * 读取文件
+     * @param $file
+     * @return string
+     * @throws \Exception
+     */
+    protected function readfile($file)
+    {
+        if (function_exists("file_get_contents")) {
+            return file_get_contents($file);
+        } else {
+            $string = "";
+
+            $file_handle = @fopen($file, "r");
+            if (!$file_handle) {
+                throw new \Exception("Can't Read File", 96);
+            }
+            while (!feof($file_handle)) {
+                $line = fgets($file_handle);
+                $string .= $line;
+            }
+            fclose($file_handle);
+
+            return $string;
+        }
+    }
+
 }

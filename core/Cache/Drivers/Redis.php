@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Src\Core\Cache\Drivers;
-use Madphp\Src\Core\Cache\Base;
+use Madphp\Src\Core\Cache\Provider;
 use Madphp\Src\Core\Cache\Driver;
 
-class Redis extends Base implements Driver
+class Redis extends Provider implements Driver
 {
 
     var $checkedRedis = false;
@@ -12,7 +12,7 @@ class Redis extends Base implements Driver
     function checkDriver()
     {
         // Check Redis
-        if (class_exists("\Redis")) {
+        if (class_exists("\\Redis")) {
             return true;
         }
         $this->fallback = true;

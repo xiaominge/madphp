@@ -110,10 +110,12 @@ class Request
      */
     private function sanitizeGlobals()
     {
-        $protected = array('_SERVER', '_GET', '_POST', '_FILES', '_REQUEST',
-                            '_SESSION', '_ENV', 'GLOBALS', 'HTTP_RAW_POST_DATA',
-                            'system_folder', 'application_folder', 'BM', 'EXT',
-                            'CFG', 'URI', 'RTR', 'OUT', 'IN');
+        $protected = array(
+            '_SERVER', '_GET', '_POST', '_FILES', '_REQUEST',
+            '_SESSION', '_ENV', 'GLOBALS', 'HTTP_RAW_POST_DATA',
+            'system_folder', 'application_folder', 'BM', 'EXT',
+            'CFG', 'URI', 'RTR', 'OUT', 'IN',
+        );
 
         foreach (array($_GET, $_POST, $_COOKIE) as $global) {
             if (!is_array($global)) {

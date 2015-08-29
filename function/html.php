@@ -9,5 +9,5 @@ use \Madphp\Src\Core\View;
 
 function render($tpl, $data = array())
 {
-    echo View::fetch($tpl, $data);
+    return View::fetch($tpl, $data);
 }

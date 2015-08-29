@@ -4,46 +4,59 @@ namespace Madphp\Src\Core\Cache;
 
 interface Driver
 {
-    /*
-     * Check if this Cache driver is available for server or not
-     */
+
     function __construct($config = array());
 
+    /**
+     * 检测缓存驱动是否可用
+     * @return mixed
+     */
     function checkDriver();
 
-    /*
-     * SET
-     * set a obj to cache
+    /**
+     * 设置缓存
+     * @param $keyword
+     * @param string $value
+     * @param int $time
+     * @param array $option
+     * @return mixed
      */
     function driverSet($keyword, $value = "", $time = 300, $option = array());
 
-    /*
-     * GET
-     * return null or value of cache
+    /**
+     * 获取缓存
+     * @param $keyword
+     * @param array $option
+     * @return mixed
      */
     function driverGet($keyword, $option = array());
 
-    /*
-     * Stats
-     * Show stats of caching
-     * Return array ("info","size","data")
+    /**
+     * 缓存信息
+     * @param array $option
+     * @return mixed
      */
     function driverStats($option = array());
 
-    /*
-     * Delete
-     * Delete a cache
+    /**
+     * 删除缓存
+     * @param $keyword
+     * @param array $option
+     * @return mixed
      */
     function driverDelete($keyword, $option = array());
 
-    /*
-     * clean
-     * Clean up whole cache
+    /**
+     * 清空缓存
+     * @param array $option
+     * @return mixed
      */
     function driverClean($option = array());
 
-    /*
-     * isExisting
+    /**
+     * 驱动是否存在
+     * @param $keyword
+     * @return mixed
      */
     function driverIsExisting($keyword);
 }

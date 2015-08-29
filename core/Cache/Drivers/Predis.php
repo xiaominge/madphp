@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Src\Core\Cache\Drivers;
-use Madphp\Src\Core\Cache\Base;
+use Madphp\Src\Core\Cache\Provider;
 use Madphp\Src\Core\Cache\Driver;
 
-class Predis extends Base implements Driver
+class Predis extends Provider implements Driver
 {
     var $checkedRedis = false;
 

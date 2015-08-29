@@ -56,42 +56,44 @@ class Route
         $uri = ltrim(str_replace(array($fileName, $fileDir), array('', ''), $urlPath), '/');
 
         if (in_array($uri, self::$routes)) {
-            self::_exact_dispatch($method, $uri);
+            $result = self::_exact_dispatch($method, $uri);
         } else {
-            self::_regular_dispatch($method, $uri);
+            $result = self::_regular_dispatch($method, $uri);
         }
 
         // 路由未找到
         if (self::$foundRoute == false) {
             self::_error404();
         }
+
+        return $result;
     }
 
     // 精准匹配
     private static function _exact_dispatch($method, $uri)
     {
+        $handleResult = null;
         // 路由的键
         $routePos = array_keys(self::$routes, $uri);
         foreach ($routePos as $pos) {
             // 请求方法相同
             if (self::$methods[$pos] == $method) {
                 self::$foundRoute = true;
-                $ret = self::_dispatch($pos);
-                if($ret === false) return;
+                $handleResult = self::handle($pos);
+                // 是否停止执行此路由的其他回调函数
+                if (self::$halts) {
+                    break;
+                }
             }
         }
-    }
-
-    // 模糊匹配
-    private static function _fuzzy_dispatch($method, $uri)
-    {
-        
+        return $handleResult;
     }
 
     // 正则模糊匹配
     private static function _regular_dispatch($method, $uri)
     {
         $pos = 0;
+        $handleResult = null;
         $searches = array_keys(static::$patterns);
         $replaces = array_values(static::$patterns);
         foreach (self::$routes as $route) {
@@ -105,17 +107,21 @@ class Route
                     if (self::$methods[$pos] == $method) {
                         self::$foundRoute = true;
                         array_shift($matched);
-                        $ret = self::_dispatch($pos, $matched);
-                        if($ret === false) return;
+                        $handleResult  = self::handle($pos, $matched);
+                        // 是否停止执行此路由的其他回调函数
+                        if (self::$halts) {
+                            break;
+                        }
                     }
                 }
             }
             $pos++;
         }
+        return $handleResult;
     }
 
-    // 调用处理方法
-    private static function _dispatch($pos, $matched = null)
+    // 处理方法
+    private static function handle($pos, $matched = null)
     {
         // 回调函数不是对象
         if (!is_object(self::$callbacks[$pos])) {
@@ -133,13 +139,10 @@ class Route
         }
         // 执行回调函数
         if (is_array($matched) && $matched) {
-            call_user_func_array($callback, $matched);
+            return call_user_func_array($callback, $matched);
         } else {
-            call_user_func($callback);
+            return call_user_func($callback);
         }
-        // 是否停止执行此路由的其他回调函数
-        if (self::$halts) return false;
-        return true;
     }
 
     private static function _error404()
