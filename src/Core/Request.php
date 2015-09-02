@@ -7,7 +7,7 @@
 
 namespace Madphp\Core;
 use Madphp\Core\Http\Util as Util;
-use Madphp\Src\Util\Validate as Validate;
+use Madphp\Util\Validate as Validate;
 
 class Request extends Http\Request
 {
