@@ -19,17 +19,17 @@
 
     "autoload": {
         "files": [
-            "function/common.php",
-            "function/str.php",
-            "function/array.php",
-            "function/dir.php",
-            "function/html.php",
-            "function/url.php"
+            "src/function/common.php",
+            "src/function/str.php",
+            "src/function/array.php",
+            "src/function/dir.php",
+            "src/function/html.php",
+            "src/function/url.php"
         ],
-        "classmap": [
-            "core",
-	        "util"
-        ]
+
+        "psr-4": {
+            "Madphp\\": "src/"
+        }
     },
 
     "config": {
