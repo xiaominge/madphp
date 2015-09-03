@@ -2,7 +2,8 @@
 
 namespace Madphp\Core\Support;
 
-class Pluralizer {
+class Pluralizer
+{
 
 	/**
 	 * Plural word form rules.
@@ -253,10 +254,8 @@ class Pluralizer {
 	{
 		$functions = array('mb_strtolower', 'mb_strtoupper', 'ucfirst', 'ucwords');
 
-		foreach ($functions as $function)
-		{
-			if (call_user_func($function, $comparison) === $comparison)
-			{
+		foreach ($functions as $function) {
+			if (call_user_func($function, $comparison) === $comparison) {
 				return call_user_func($function, $value);
 			}
 		}

@@ -84,25 +84,94 @@ if (!function_exists('array_column')) {
 /**
  * 对象转数组, 使用 get_object_vars 返回对象属性组成的数组
  */
-function objectToArray($obj)
-{
-    $arr = is_object($obj) ? get_object_vars($obj) : $obj;
-    // $arr = is_object($obj) ? (array) $obj : $obj;
-    if (is_array($arr)) {
-        return array_map(__FUNCTION__, $arr);
-    } else {
-        return $arr;
+if (!function_exists('objectToArray')) {
+    function objectToArray($obj)
+    {
+        $arr = is_object($obj) ? get_object_vars($obj) : $obj;
+        // $arr = is_object($obj) ? (array) $obj : $obj;
+        if (is_array($arr)) {
+            return array_map(__FUNCTION__, $arr);
+        } else {
+            return $arr;
+        }
     }
 }
 
 /**
  * 数组转对象
  */
-function arrayToObject($arr)
-{
-    if (is_array($arr)) {
-        return (object) array_map(__FUNCTION__, $arr);
-    } else {
-        return $arr;
+if (!function_exists('arrayToObject')) {
+    function arrayToObject($arr)
+    {
+        if (is_array($arr)) {
+            return (object)array_map(__FUNCTION__, $arr);
+        } else {
+            return $arr;
+        }
+    }
+}
+
+/**
+ * 获取数组最后一个元素
+ */
+if (!function_exists('last')) {
+    function last($array)
+    {
+        return end($array);
+    }
+}
+
+if (!function_exists('array_set')) {
+    function array_set(&$array, $key, $value)
+    {
+        if (is_null($key)) return $array = $value;
+
+        $keys = explode('.', $key);
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                $array[$key] = array();
+            }
+            $array =& $array[$key];
+        }
+
+        $array[array_shift($keys)] = $value;
+        return $array;
+    }
+}
+
+if (!function_exists('array_get')) {
+    function array_get($array, $key, $default = null)
+    {
+        if (is_null($key)) return $array;
+        if (isset($array[$key])) return $array[$key];
+
+        foreach (explode('.', $key) as $segment) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
+                return value($default);
+            }
+
+            $array = $array[$segment];
+        }
+
+        return $array;
+    }
+}
+
+if (!function_exists('array_forget')) {
+    function array_forget(&$array, $keys)
+    {
+        foreach ((array)$keys as $key) {
+
+            $parts = explode('.', $key);
+            while (count($parts) > 1) {
+                $part = array_shift($parts);
+                if (isset($array[$part]) && is_array($array[$part])) {
+                    $array =& $array[$part];
+                }
+            }
+
+            unset($array[array_shift($parts)]);
+        }
     }
 }

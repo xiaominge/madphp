@@ -59,7 +59,7 @@ class Factory
      */
     public static function getPath($skip_create_path = false, $config)
     {
-        if ($config['path'] == '') {
+        if ($config['path'] == '' && !defined('CACHE_PATH')) {
             // revision 618
             if (self::isPHPModule()) {
                 $tmp_dir = ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : sys_get_temp_dir();
@@ -71,8 +71,10 @@ class Factory
             if (self::$config['path'] != "") {
                 $path = $config['path'];
             }
-        } else {
+        } elseif ($config['path'] != '') {
             $path = $config['path'];
+        } else {
+            $path = CACHE_PATH;
         }
 
         // 从参数配置获取

@@ -6,7 +6,7 @@
  */
 
 namespace Madphp\Core\View;
-use Madphp\Core\View as View;
+use Madphp\Core\View as ViewProvider;
 
 class Util
 {
@@ -37,7 +37,7 @@ class Util
      */
     protected static function _render($object, $data = null)
     {
-        if ($object instanceof View) {
+        if ($object instanceof ViewProvider) {
             if ($object->isCompiler) {
                 $viewStr = file_get_contents($object->view);
                 $viewCompiledStr = $object->compiler->parse($viewStr);
@@ -45,7 +45,7 @@ class Util
                 $compiledFile = self::getCompiledFile($object->viewName);
                 if (!file_exists($compiledFile) or filemtime($object->view) > filemtime($compiledFile)) {
                     $compiledPath = pathinfo($compiledFile, PATHINFO_DIRNAME);
-                    mkdirs($compiledPath);
+                    mkdirs($compiledPath, 0777);
                     file_put_contents ($compiledFile, $viewCompiledStr);
                     chmod ($compiledFile, 0777);
                 }

@@ -3,6 +3,7 @@
 namespace Madphp\Core\Event;
 
 use Madphp\Core\Support\Container;
+use Madphp\Core\Support\Str;
 
 class Dispatcher
 {
@@ -64,7 +65,7 @@ class Dispatcher
 	public function listen($events, $listener, $priority = 0)
 	{
 		foreach ((array) $events as $event) {
-			if (\Madphp\Core\Support\Str::contains($event, '*')) {
+			if (Str::contains($event, '*')) {
 				$this->setupWildcardListen($event, $listener);
 			} else {
 				$this->listeners[$event][$priority][] = $this->makeListener($listener);
@@ -245,7 +246,9 @@ class Dispatcher
 		$wildcards = array();
 
 		foreach ($this->wildcards as $key => $listeners) {
-			if (\Madphp\Core\Support\Str::is($key, $eventName)) $wildcards = array_merge($wildcards, $listeners);
+			if (Str::is($key, $eventName)) {
+                $wildcards = array_merge($wildcards, $listeners);
+            }
 		}
 
 		return $wildcards;
@@ -264,8 +267,7 @@ class Dispatcher
 		// If listeners exist for the given event, we will sort them by the priority
 		// so that we can call them in the correct order. We will cache off these
 		// sorted event listeners so we do not have to re-sort on every events.
-		if (isset($this->listeners[$eventName]))
-		{
+		if (isset($this->listeners[$eventName])) {
 			krsort($this->listeners[$eventName]);
 
 			$this->sorted[$eventName] = call_user_func_array('array_merge', $this->listeners[$eventName]);
@@ -280,8 +282,7 @@ class Dispatcher
 	 */
 	public function makeListener($listener)
 	{
-		if (is_string($listener))
-		{
+		if (is_string($listener)) {
 			$listener = $this->createClassListener($listener);
 		}
 
@@ -336,9 +337,8 @@ class Dispatcher
 	 */
 	public function forgetQueued()
 	{
-		foreach ($this->listeners as $key => $value)
-		{
-			if (ends_with($key, '_queue')) $this->forget($key);
+		foreach ($this->listeners as $key => $value) {
+			if (Str::endsWith($key, '_queue')) $this->forget($key);
 		}
 	}
 

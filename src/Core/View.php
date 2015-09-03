@@ -6,8 +6,8 @@
  */
 
 namespace Madphp\Core;
-use Madphp\Core\View\Layout as Layout;
-use Madphp\Core\View\Compiler as Compiler;
+use Madphp\Core\View\Layout;
+use Madphp\Core\View\Compiler;
 use Madphp\Core\View\Util as ViewUtil;
 
 class View

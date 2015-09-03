@@ -20,6 +20,18 @@ class Output
     }
 
     /**
+     * 创建输出实例
+     * @param $data
+     * @param array $args
+     * @return mixed
+     */
+    public static function getInstance($data, $args = array())
+    {
+        $class = __CLASS__;
+        return new $class($data, $args);
+    }
+
+    /**
      * 输出 json 数据
      */
     public static function json($data, $option = 0, $return = false, $fromType = null)
@@ -27,20 +39,21 @@ class Output
         if (is_resource($data)) {
             throw new \UnexpectedValueException("Output::json can not recieve resource!");
         } else {
-            $output = new self($data);
-            if ($return) {
-                return Format::factory($output->data, $fromType)->toJson($option);
+            $output = self::getInstance($data);
+            $outputData = Format::factory($output->data, $fromType)->toJson($option);
+            if (!$return) {
+                echo $outputData;
             }
-            echo Format::factory($output->data, $fromType)->toJson($option);
+            return $outputData;
         }
     }
     
     /**
      * 输出 xml 数据
      */
-    public static function xml($arr, $structure = null, $basenode = 'xml', $return = false, $fromType = null)
+    public static function xml($data, $structure = null, $basenode = 'xml', $return = false, $fromType = null)
     {
-        $output = new self($arr);
+        $output = self::getInstance($data);
 
         if ($structure !== null && !$structure) {
             $structure = null;
@@ -51,11 +64,11 @@ class Output
 
         $xml_output = Format::factory($output->data, $fromType)->toXml($structure, $basenode);
 
-        if ($return) {
-            return $xml_output;
+        if (!$return) {
+            header('Content-Type: text/xml');
+            echo $xml_output;
         }
-        header('Content-Type: text/xml');
-        echo $xml_output;
+        return $xml_output;
     }
 
     /**
@@ -66,11 +79,12 @@ class Output
         if (is_resource($data)) {
             throw new \UnexpectedValueException("Output::serialize can not recieve resource!");
         } else {
-            $output = new self($data);
-            if ($return) {
-                return Format::factory($output->data, $fromType)->toSerialize();
+            $output = self::getInstance($data);
+            $outputData = Format::factory($output->data, $fromType)->toSerialize();
+            if (!$return) {
+                echo $outputData;
             }
-            echo Format::factory($output->data, $fromType)->toSerialize();
+            return $outputData;
         }
     }
 
@@ -79,11 +93,12 @@ class Output
      */
     public static function php($data, $return = false, $fromType = null)
     {
-        $output = new self($data);
-        if ($return) {
-            return Format::factory($output->data, $fromType)->toPhp();
+        $output = self::getInstance($data);
+        $outputData = Format::factory($output->data, $fromType)->toPhp();
+        if (!$return) {
+            echo $outputData;
         }
-        echo Format::factory($output->data, $fromType)->toPhp();
+        return $outputData;
     }
 
     /**
@@ -91,11 +106,12 @@ class Output
      */
     public static function asArray($data, $return = false, $fromType = null)
     {
-        $output = new self($data);
-        if ($return) {
-            return Format::factory($output->data, $fromType)->toArray();
+        $output = self::getInstance($data);
+        $outputData = Format::factory($output->data, $fromType)->toArray();
+        if (!$return) {
+            pp($outputData, false);
         }
-        var_dump(Format::factory($output->data, $fromType)->toArray());
+        return $outputData;
     }
 
     /**
@@ -103,12 +119,13 @@ class Output
      */
     public static function csv($data, $fileName, $return = false, $fromType = null)
     {
-        $output = new self($data);
-        if ($return) {
-            return Format::factory($output->data, $fromType)->toCsv();
+        $output = self::getInstance($data);
+        $outputData = Format::factory($output->data, $fromType)->toCsv();
+        if (!$return) {
+            header("Content-type:application/vnd.ms-excel");
+            header("content-Disposition:filename={$fileName}");
+            echo $outputData;
         }
-        header("Content-type:application/vnd.ms-excel");
-        header("content-Disposition:filename={$fileName}");
-        echo Format::factory($output->data, $fromType)->toCsv();
+        return $outputData;
     }
 }

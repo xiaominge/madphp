@@ -10,13 +10,15 @@ use Madphp\Core\Event\Dispatcher;
 
 class Event
 {
+
+    public static $instance = null;
+
     public static function getInstance()
     {
-        static $instance;
-        if (is_null($instance)) {
-            $instance = new Dispatcher();
+        if (is_null(self::$instance)) {
+            self::$instance = new Dispatcher();
         }
-        return $instance;
+        return self::$instance;
     }
 
     private function __construct()

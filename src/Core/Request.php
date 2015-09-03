@@ -8,6 +8,7 @@
 namespace Madphp\Core;
 use Madphp\Core\Http\Util as Util;
 use Madphp\Util\Validate as Validate;
+use Madphp\Core\Support\Str;
 
 class Request extends Http\Request
 {
@@ -222,6 +223,6 @@ class Request extends Http\Request
      */
     public static function isJson()
     {
-        return Support\Str::contains(self::header('CONTENT_TYPE'), '/json');
+        return Str::contains(self::header('CONTENT_TYPE'), '/json');
     }
 }

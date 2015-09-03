@@ -1,23 +1,20 @@
 <?php
 
+use Madphp\Core\Log;
+use Madphp\Core\Request;
+
 /**
  * 函数库
  * @author 徐亚坤 hdyakun@sina.com
  */
 
 /**
-* Error Logging Interface
-*
-* We use this as a simple mechanism to access the logging
-* class and send messages to be logged.
-*
-* @access   public
-* @return   void
-*/
+ * 根据级别写日志
+ */
 if (!function_exists('writeLog')) {
     function writeLog($level = 'error', $message, $force = FALSE)
     {
-        return \Madphp\Core\Log::write($level, $message, $force);
+        return Log::write($level, $message, $force);
     }
 }
 
@@ -28,7 +25,7 @@ if (!function_exists('writeLog')) {
 if (!function_exists('is_cli')) {
     function is_cli()
     {
-        return \Madphp\Core\Request::isCli();
+        return Request::isCli();
     }
 }
 

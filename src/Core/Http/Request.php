@@ -166,7 +166,7 @@ class Request
         $_SERVER['PHP_SELF'] = strip_tags($_SERVER['PHP_SELF']);
 
         // HTTP请求 CSRF防护检测
-        if ($this->enableCsrf == TRUE && !\Madphp\Core\Request::isCli()) {
+        if ($this->enableCsrf == TRUE && is_cli()) {
             Secure::csrfVerify();
         }
 

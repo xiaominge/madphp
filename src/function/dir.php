@@ -61,19 +61,20 @@ if (!function_exists('dir_create')) {
  * 递归创建目录
  */
 if (!function_exists('mkdirs')) {
-    function mkdirs($dir, $mode = 0777, $recursive = true)
+    function mkdirs($dir, $mode = '0777', $recursive = true)
     {
         if (is_null($dir) || $dir === "") {
             return FALSE;
         }
         if (is_dir($dir) || $dir === "/") {
+            chmod($dir, $mode);
             return TRUE;
         }
         if (mkdirs(dirname($dir), $mode, $recursive)) {
             try {
                 return mkdir($dir, $mode);
-            } catch(Exception $e) {
-                throw new \Exception("Can't create dir '".$dir."'");
+            } catch(\Exception $e) {
+                throw new \Exception("Can't create dir '".$dir."' with mode " . $mode);
             }
         }
         return FALSE;
