@@ -13,6 +13,8 @@ class Compiler
     
     public $defaultEngineName = 'litwit';
 
+    public $compilerRoot;
+
     public $engineName = null;
 
     public function __construct($engineName = null)
@@ -21,6 +23,12 @@ class Compiler
             $this->engineName = $engineName;
         } else {
             $this->engineName = $this->defaultEngineName;
+        }
+
+        if (defined('STORAGE_PATH')) {
+            $this->compilerRoot = STORAGE_PATH;
+        } else {
+            $this->compilerRoot = dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR;
         }
     }
 

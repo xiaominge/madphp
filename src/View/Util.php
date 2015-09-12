@@ -13,20 +13,15 @@ class Util
     /**
      * 渲染模板文件
      */
-    public static function render($object, $data = null)
+    public static function render(ViewProvider $object, $data = null)
     {
         $data = array_merge((array) $object->data, (array) $data);
+
         if ($object->isLayout) {
-
-            if (!defined('LAYOUT_FOLDER')) {
-                throw new \InvalidArgumentException("LAYOUT_FOLDER is undefined!");
-            }
-
             $output = self::_render($object, $data);
-            $layoutName = LAYOUT_FOLDER . '.' . $object->layout->layoutName;
             $object->layout->set('content', $output);
             $allData = array_merge($data, array('layoutData' => $object->layout->data));
-            return $object->fetch($layoutName, $allData);
+            return self::layout($object->layout->layoutName, $allData);
         } else {
             return self::_render($object, $data);
         }
@@ -35,29 +30,25 @@ class Util
     /**
      * 渲染模板文件
      */
-    protected static function _render($object, $data = null)
+    protected static function _render(ViewProvider $object, $data = null)
     {
-        if ($object instanceof ViewProvider) {
-            if ($object->isCompiler) {
-                $viewStr = file_get_contents($object->view);
-                $viewCompiledStr = $object->compiler->parse($viewStr);
-                
-                $compiledFile = self::getCompiledFile($object->viewName);
-                if (!file_exists($compiledFile) or filemtime($object->view) > filemtime($compiledFile)) {
-                    $compiledPath = pathinfo($compiledFile, PATHINFO_DIRNAME);
-                    mkdirs($compiledPath, 0777);
-                    file_put_contents ($compiledFile, $viewCompiledStr);
-                    chmod ($compiledFile, 0777);
-                }
-                
-                $output = self::load($compiledFile, $data);
-            } else {
-                $output = self::load($object->view, $data);
+        if ($object->isCompiler) {
+            $viewStr = file_get_contents($object->viewFile);
+            $viewCompiledStr = $object->compiler->parse($viewStr);
+
+            $compiledFile = self::getCompiledFile($object);
+            if (!file_exists($compiledFile) or filemtime($object->viewFile) > filemtime($compiledFile)) {
+                $compiledPath = pathinfo($compiledFile, PATHINFO_DIRNAME);
+                mkdirs($compiledPath, 0777);
+                file_put_contents ($compiledFile, $viewCompiledStr);
+                chmod ($compiledFile, 0777);
             }
-            return $output;
+
+            $output = self::load($compiledFile, $data);
         } else {
-            throw new \UnexpectedValueException("\$object must be instance of View!");
+            $output = self::load($object->viewFile, $data);
         }
+        return $output;
     }
     
     protected static function load($file, $data = null)
@@ -70,19 +61,39 @@ class Util
         return $output;
     }
     
-    protected static function getCompiledFile($viewName = null)
+    protected static function getCompiledFile(ViewProvider $viewProvider)
     {
-        if (!defined('CACHE_PATH')) {
-            throw new \InvalidArgumentException("CACHE_PATH is undefined!");
+        $viewName = $viewProvider->viewName;
+        $filePath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
+
+        if ($viewProvider->isLayoutFile) {
+            $folder = $viewProvider->layout->layoutFolder;
+        } else {
+            $folder = $viewProvider->viewFolder;
         }
-        $viewPath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
-        return CACHE_PATH . VIEW_FOLDER . DIRECTORY_SEPARATOR . $viewPath . '.php';
+        return $viewProvider->compiler->compilerRoot . $folder . DIRECTORY_SEPARATOR . $filePath . '.php';
     }
 
-    public static function getFilePath($viewName)
+    public static function getFilePath(ViewProvider $viewProvider)
     {
+        $viewName = $viewProvider->viewName;
         $filePath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
-        return VIEW_PATH . $filePath . '.php';
+
+        if ($viewProvider->isLayoutFile) {
+            $path = $viewProvider->layout->layoutPath;
+        } else {
+            $path = $viewProvider->viewPath;
+        }
+        return $path . $filePath . '.php';
+    }
+
+    /**
+     * 渲染Layout
+     */
+    public static function layout($name, $data = null)
+    {
+        $object = ViewProvider::make($name, true);
+        return self::render($object, $data);
     }
 }
 

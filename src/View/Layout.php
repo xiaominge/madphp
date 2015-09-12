@@ -13,9 +13,14 @@ class Layout
 
     public $layoutName = 'default';
 
+    public $layoutFolder;
+
+    public $layoutPath;
+
     public function __construct()
     {
-
+        $this->layoutPath = defined('LAYOUT_PATH') ? LAYOUT_PATH : dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'layouts' . DIRECTORY_SEPARATOR;
+        $this->layoutFolder = basename($this->layoutPath);
     }
 
     public function set($key, $val)

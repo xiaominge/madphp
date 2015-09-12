@@ -12,7 +12,9 @@ use Madphp\View\Util as ViewUtil;
 
 class View
 {
-    public $view;
+    public $viewFile;
+
+    public $isLayoutFile;
 
     public $viewName;
 
@@ -25,26 +27,35 @@ class View
     public $isLayout = true;
 
     public $isCompiler = true;
-    
-    public function __construct($viewName)
-    {
-        if (!defined('VIEW_PATH')) {
-            throw new \InvalidArgumentException("VIEW_PATH is undefined!");
-        }
 
+    public $viewFolder;
+
+    public $viewPath;
+    
+    public function __construct($viewName, $isLayoutFile = false)
+    {
         if(!$viewName) {
             throw new \InvalidArgumentException("View name can not be empty!");
         } else {
-            $viewFile = ViewUtil::getFilePath($viewName);
+
+            $this->viewName = $viewName;
+            $this->viewPath = defined('VIEW_PATH') ? VIEW_PATH : dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+            $this->viewFolder = basename($this->viewPath);
+            $this->isLayoutFile = $isLayoutFile;
+            if ($isLayoutFile === true) {
+                $this->isLayout(false);
+            }
+
+            $this->layout = new Layout();
+            $this->compiler = new Compiler();
+
+            $viewFile = ViewUtil::getFilePath($this);
             if (!is_file($viewFile)) {
                 throw new \UnexpectedValueException("View file does not exist!");
             }
-        }
 
-        $this->view = $viewFile;
-        $this->viewName = $viewName;
-        $this->layout = new Layout();
-        $this->compiler = new Compiler();
+            $this->viewFile = $viewFile;
+        }
     }
 
     /**
@@ -52,9 +63,9 @@ class View
      * @param null $viewName
      * @return View
      */
-    public static function make($viewName = null)
+    public static function make($viewName = null, $isLayoutFile = false)
     {
-        return new self($viewName);
+        return new self($viewName, $isLayoutFile);
     }
 
     /**
@@ -89,7 +100,7 @@ class View
     }
 
     /**
-     * 是否布局
+     * 是否启用Layout
      */
     public function isLayout($isLayout, $object = null)
     {
@@ -144,10 +155,10 @@ class View
      * 多用于加载局部模板文件
      * 获取渲染模板文件的内容
      */
-    public static function fetch($template, $data = null, $isLayout = false)
+    public static function fetch($template, $data = null)
     {
         $object = self::make($template);
-        $object->isLayout($isLayout, $object);
+        $object->isLayout(false);
         return ViewUtil::render($object, $data);
     }
 
