@@ -11,26 +11,37 @@ use Madphp\View as ViewProvider;
 class Util
 {
     /**
+     * 获取视图文件路径
+     */
+    public static function getFilePath(ViewProvider $viewProvider)
+    {
+        $path = $viewProvider->isLayoutFile ? $viewProvider->layout->layoutPath : $viewProvider->viewPath;
+        return self::getPath($path, $viewProvider->viewName);
+    }
+
+    /**
      * 渲染模板文件
      */
     public static function render(ViewProvider $object, $data = null)
     {
         $data = array_merge((array) $object->data, (array) $data);
 
+        // 开启Layout
         if ($object->isLayout) {
-            $output = self::_render($object, $data);
+            $output = self::getOutput($object, $data);
             $object->layout->set('content', $output);
             $allData = array_merge($data, array('layoutData' => $object->layout->data));
-            return self::layout($object->layout->layoutName, $allData);
+            $layoutObject = ViewProvider::make($object->layout->layoutName, true);
+            return self::getOutput($layoutObject, $allData);
         } else {
-            return self::_render($object, $data);
+            return self::getOutput($object, $data);
         }
     }
 
     /**
-     * 渲染模板文件
+     * 获取渲染模板文件的输出内容
      */
-    protected static function _render(ViewProvider $object, $data = null)
+    protected static function getOutput(ViewProvider $object, $data = null)
     {
         if ($object->isCompiler) {
             $viewStr = file_get_contents($object->viewFile);
@@ -44,56 +55,39 @@ class Util
                 chmod ($compiledFile, 0777);
             }
 
-            $output = self::load($compiledFile, $data);
+            return self::load($compiledFile, $data);
         } else {
-            $output = self::load($object->viewFile, $data);
+            return self::load($object->viewFile, $data);
         }
-        return $output;
     }
-    
+
+    /**
+     * 加载文件
+     */
     protected static function load($file, $data = null)
     {
         extract($data);
         ob_start();
         require $file;
-        $output = ob_get_contents();
-        ob_end_clean();
-        return $output;
-    }
-    
-    protected static function getCompiledFile(ViewProvider $viewProvider)
-    {
-        $viewName = $viewProvider->viewName;
-        $filePath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
-
-        if ($viewProvider->isLayoutFile) {
-            $folder = $viewProvider->layout->layoutFolder;
-        } else {
-            $folder = $viewProvider->viewFolder;
-        }
-        return $viewProvider->compiler->compilerRoot . $folder . DIRECTORY_SEPARATOR . $filePath . '.php';
-    }
-
-    public static function getFilePath(ViewProvider $viewProvider)
-    {
-        $viewName = $viewProvider->viewName;
-        $filePath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
-
-        if ($viewProvider->isLayoutFile) {
-            $path = $viewProvider->layout->layoutPath;
-        } else {
-            $path = $viewProvider->viewPath;
-        }
-        return $path . $filePath . '.php';
+        return ob_get_clean();
     }
 
     /**
-     * 渲染Layout
+     * 获取编译后的视图文件路径
      */
-    public static function layout($name, $data = null)
+    protected static function getCompiledFile(ViewProvider $viewProvider)
     {
-        $object = ViewProvider::make($name, true);
-        return self::render($object, $data);
+        $folder = $viewProvider->isLayoutFile ? $viewProvider->layout->layoutFolder : $viewProvider->viewFolder;
+        $path = $viewProvider->compiler->compilerRoot . $folder . DIRECTORY_SEPARATOR;
+        return self::getPath($path, $viewProvider->viewName);
+    }
+
+    /**
+     * 获取文件路径
+     */
+    protected static function getPath($path, $viewName)
+    {
+        $filePath = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
+        return $path . $filePath . '.php';
     }
 }
-

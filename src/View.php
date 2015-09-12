@@ -152,7 +152,7 @@ class View
     }
 
     /**
-     * 多用于加载局部模板文件
+     * 用于加载局部模板文件
      * 获取渲染模板文件的内容
      */
     public static function fetch($template, $data = null)
