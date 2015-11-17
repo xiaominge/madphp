@@ -16,6 +16,7 @@ class Db
     
     public static function connection($dbname, $config = array(), $type = "mysql", $pdo = false)
     {
+        // 简单工厂模式获取数据库驱动实例
         return Db\Factory::instance($dbname, $type, $config, $pdo);
     }
     

@@ -684,3 +684,18 @@ if (!function_exists('rootTree')) {
         return isset($items[0]['sub']) ? $items[0]['sub'] : array();
     }
 }
+
+function curl_post($url, $data)
+{
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    // 文件上传参考 CURLFile
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}

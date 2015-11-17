@@ -13,6 +13,7 @@ class Cache
 
     public function __construct($storage = "", $config = array())
     {
+        // 简单工厂模式获取缓存实例
         $this->instance = Cache\Factory::instance($storage, $config);
     }
     

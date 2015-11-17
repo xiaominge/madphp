@@ -5,6 +5,24 @@
  * @author 徐亚坤 hdyakun@sina.com
  */
 
+function rm_empty_dir($path)
+{
+    if (is_dir($path) && ($handle = opendir($path)) !== false) {
+        while (($file = readdir($handle)) !== false) {     // 遍历文件夹
+            if ($file != '.' && $file != '..') {
+                $curfile = $path . '/' . $file;          // 当前目录
+                if (is_dir($curfile)) {                // 目录
+                    rm_empty_dir($curfile);          // 如果是目录则继续遍历
+                    if (count(scandir($curfile)) == 2) { // 目录为空,=2是因为. 和 ..存在
+                        rmdir($curfile);            // 删除空目录
+                    }
+                }
+            }
+        }
+        closedir($handle);
+    }
+}
+
 /**
  * 转化 \ 为 /
  * @author 徐亚坤
@@ -153,4 +171,47 @@ if (!function_exists('is_really_writable')) {
         fclose($fp);
         return TRUE;
     }
+}
+
+function dir_diff($a, $b)
+{
+    $arr = explode('/', $a);
+    array_shift($arr);
+    $brr = explode('/', $b);
+    array_shift($brr);
+    $str = '';
+    $i = 0;
+    foreach ($arr as $key => $value) {
+        if ($brr[$key] == $value) {
+            $str .= '../';
+            $i++;
+        } else {
+            break;
+        }
+    }
+    $l = count($arr);
+    $newarr = array_slice($arr, $i, $l-$i);
+    $newstr = implode('/', $newarr);
+    return $str . $newstr;
+}
+
+function dir_level_diff($a, $b)
+{
+    $arr = explode(DIRECTORY_SEPARATOR, trim($a, DIRECTORY_SEPARATOR));
+    $brr = explode(DIRECTORY_SEPARATOR, trim($b, DIRECTORY_SEPARATOR));
+
+    return count($arr) - count($brr);
+}
+
+function dir_delete($dir, $log_path = null)
+{
+    if (!is_dir($dir)) return FALSE;
+    if (!empty($log_path)) {
+        error_log($dir . "\n", 3, $log_path . 'dir_delete.log');
+    }
+    $files = array_diff(scandir($dir), array('.', '..'));
+    foreach ($files as $file) {
+        is_dir("$dir/$file") ? dir_delete("$dir/$file", $log_path) : unlink("$dir/$file");
+    }
+    return rmdir($dir);
 }
