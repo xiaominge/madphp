@@ -2,6 +2,9 @@
 
 namespace Madphp\Cache;
 
+/*
+* 使用模板模式
+*/
 abstract class Provider
 {
 

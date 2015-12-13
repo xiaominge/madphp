@@ -29,6 +29,12 @@ if (!function_exists('is_cli')) {
     }
 }
 
+function is_ajax()
+{
+    $tmp = 'HTTP_X_REQUESTED_WITH';
+    return !empty($_SERVER[$tmp]) && strtolower($_SERVER[$tmp]) == 'xmlhttprequest';
+}
+
 /**
  * 判断变量是否存在且有值
  * 不适用数组判断数组的键
