@@ -1,8 +1,8 @@
 <?php
 
-namespace Madphp\Db\Engine\Pdo;
+namespace Madphp\Db\Pdo;
 
-interface ConnectionInterface
+interface PdoInterface
 {
     public function insert($sql, array $parameterMap = array(), array $sqlMap = array());
     

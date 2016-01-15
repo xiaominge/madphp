@@ -2,12 +2,13 @@
 
 namespace Madphp\Db;
 
-class Factory
+abstract class Factory
 {
-    private function __construct() {}
 
-    public static function instance($dbname, $type, $config, $pdo)
+    abstract public function createDb();
+
+    public function create()
     {
-        return Instance::get($dbname, $type, $config, $pdo);
+        return call_user_func_array(array($this, 'createDb'), func_get_args());
     }
 }

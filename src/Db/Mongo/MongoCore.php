@@ -1,8 +1,8 @@
 <?php
 
-namespace Madphp\Db\Engine;
+namespace Madphp\Db\Mongo;
 
-class Mongo
+class MongoCore
 {
     /**
      * Config data
@@ -1446,15 +1446,14 @@ class Mongo
 
         try {
             // @codeCoverageIgnoreStart
-            if (phpversion('Mongo') >= 1.3) {
+            if (class_exists('\MongoClient')) {
                 unset($options['persist']);
                 $this->_connection = new \MongoClient($this->_dsn, $options);
-                $this->_dbhandle = $this->_connection->{$this->_dbname};
             } else {
                 $this->_connection = new \Mongo($this->_dsn, $options);
-                $this->_dbhandle = $this->_connection->{$this->_dbname};
             }
             // @codeCoverageIgnoreEnd
+            $this->_dbhandle = $this->_connection->{$this->_dbname};
             return $this;
         } catch (MongoConnectionException $Exception) { // @codeCoverageIgnoreStart
             throw new \Exception('Unable to connect to MongoDB: ' . $Exception->getMessage());

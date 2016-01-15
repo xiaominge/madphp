@@ -1,7 +1,8 @@
 <?php
 
-namespace Madphp\Db\Engine\Pdo;
+namespace Madphp\Db\Pdo\Engine;
 use Madphp\Config;
+use Madphp\Db\Pdo\Connection;
 
 class Mysql extends Connection
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Madphp\Db\Engine\Pdo;
+namespace Madphp\Db\Pdo;
 
-abstract class Connection implements ConnectionInterface
+abstract class Connection implements PdoInterface
 {
     
     /**

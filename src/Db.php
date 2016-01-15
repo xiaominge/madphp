@@ -14,19 +14,15 @@ class Db
 
     }
     
-    public static function connection($dbname, $config = array(), $type = "mysql", $pdo = false)
-    {
-        // 简单工厂模式获取数据库驱动实例
-        return Db\Factory::instance($dbname, $type, $config, $pdo);
-    }
-    
     public static function pdo($dbname, $config = array(), $type = "mysql")
     {
-        return self::connection($dbname, $config, $type, true);
+        $o = new Db\PdoFactory();
+        return $o->create($dbname, $config, $type);
     }
     
     public static function mongo($dbname, $config = array())
     {
-        return self::connection($dbname, $config, 'mongo', false);
+        $o = new Db\MongoFactory();
+        return $o->create($dbname, $config);
     }
 }
