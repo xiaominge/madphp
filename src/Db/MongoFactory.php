@@ -5,13 +5,24 @@ namespace Madphp\Db;
 class MongoFactory extends Factory
 {
 
+    public static $self = null;
+
     public static $modality = 'read';
 
     public static $instances = array();
 
-    public function __construct()
+    private function __construct()
     {
 
+    }
+
+    public static function getInstance()
+    {
+        if (self::$self === null) {
+            self::$self = new static;
+        }
+
+        return self::$self;
     }
 
     public function createDb()
