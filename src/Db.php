@@ -16,11 +16,11 @@ class Db
     
     public static function pdo($dbname, $config = array(), $type = "mysql")
     {
-        return Db\PdoFactory::getInstance()->create($dbname, $config, $type);
+        return Db\Factory::getInstance('pdo')->createDb($dbname, $config, $type);
     }
     
     public static function mongo($dbname, $config = array())
     {
-        return Db\MongoFactory::getInstance()->create($dbname, $config);
+        return Db\Factory::getInstance('mongo')->createDb($dbname, $config);
     }
 }

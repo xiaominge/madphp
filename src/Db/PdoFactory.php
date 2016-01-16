@@ -2,35 +2,21 @@
 
 namespace Madphp\Db;
 
-class PdoFactory extends Factory
+class PdoFactory
 {
-
-    public static $self = null;
 
     public static $modality = 'read';
 
     public static $instances = array();
 
-    private function __construct()
+    public function __construct()
     {
 
     }
 
-    public static function getInstance()
+    public function createDb($dbname, $config = array(), $type = 'mysql')
     {
-        if (self::$self === null) {
-            self::$self = new static;
-        }
 
-        return self::$self;
-    }
-
-    public function createDb()
-    {
-        $args = func_get_args();
-        $dbname = $args[0];
-        $config = $args[1];
-        $type = $args[2];
         if (isset($config['modality']) && in_array($config['modality'], array('write', 'read'))) {
             $modality = $config['modality'];
         } else {

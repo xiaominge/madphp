@@ -5,10 +5,23 @@ namespace Madphp\Db;
 abstract class Factory
 {
 
-    abstract public function createDb();
+    public static $instances = array();
 
-    public function create()
+    public static $types = array(
+        'pdo', 'mongo',
+    );
+
+    public static function getInstance($type)
     {
-        return call_user_func_array(array($this, 'createDb'), func_get_args());
+        if (!in_array($type, self::$types)) {
+            throw new \Exception("$type not found!");
+        }
+
+        if (empty(self::$instances[$type])) {
+            $dbFactory = __NAMESPACE__ . "\\" . ucfirst(strtolower($type)) . "Factory";
+            self::$instances[$type] = new $dbFactory;
+        }
+
+        return self::$instances[$type];
     }
 }
