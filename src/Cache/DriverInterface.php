@@ -2,7 +2,7 @@
 
 namespace Madphp\Cache;
 
-interface Driver
+interface DriverInterface
 {
 
     function __construct($config = array());

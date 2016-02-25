@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Cache\Drivers;
-use Madphp\Cache\Provider;
-use Madphp\Cache\Driver;
 
-class Predis extends Provider implements Driver
+use Madphp\Cache\DriverAbstract;
+
+class Predis extends DriverAbstract
 {
     var $checkedRedis = false;
 
@@ -27,15 +27,15 @@ class Predis extends Provider implements Driver
     {
         $server = isset($this->option['redis']) ? $this->option['redis'] : array(
             "host" => "127.0.0.1",
-            "port"  =>  "6379",
-            "password"  =>  "",
-            "database"  =>  ""
+            "port" => "6379",
+            "password" => "",
+            "database" => ""
         );
 
         if ($this->checkedRedis === false) {
 
             $c = array(
-                "host"  => $server['host'],
+                "host" => $server['host'],
             );
 
             $port = isset($server['port']) ? $server['port'] : "";
@@ -71,7 +71,7 @@ class Predis extends Provider implements Driver
             if (isset($option['skipExisting']) && $option['skipExisting'] == true) {
                 return $this->instant->setex($keyword, $time, $value);
             } else {
-                return $this->instant->setex($keyword, $time, $value );
+                return $this->instant->setex($keyword, $time, $value);
             }
         } else {
             return $this->backup()->set($keyword, $value, $time, $option);

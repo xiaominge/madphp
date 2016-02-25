@@ -28,17 +28,17 @@ class Instance
         $storage = strtolower($storage);
 
         if (empty($config)) {
-            $config = Factory::$config;
+            $config = Util::$config;
         } else {
-            $config = array_merge(Factory::$config, $config);
+            $config = array_merge(Util::$config, $config);
         }
         if ($storage == "" || $storage == "auto") {
             $storage = self::getAutoClass($config);
         }
 
-        $instance = md5(json_encode($config).$storage);
+        $instance = md5(json_encode($config) . $storage);
         if (!isset(self::$instances[$instance])) {
-            $class = __NAMESPACE__."\\Drivers\\".ucfirst(strtolower($storage));
+            $class = __NAMESPACE__ . "\\Drivers\\" . ucfirst(strtolower($storage));
             if (class_exists($class)) {
                 self::$instances[$instance] = new $class($config);
             } else {
@@ -57,7 +57,7 @@ class Instance
     public static function getAutoClass($config)
     {
         $driver = "";
-        $path = Factory::getPath(false, $config);
+        $path = Util::getPath(false, $config);
 
         if (is_writeable($path)) {
             $driver = "file";

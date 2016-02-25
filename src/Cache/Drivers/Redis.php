@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Cache\Drivers;
-use Madphp\Cache\Provider;
-use Madphp\Cache\Driver;
 
-class Redis extends Provider implements Driver
+use Madphp\Cache\DriverAbstract;
+
+class Redis extends DriverAbstract
 {
 
     var $checkedRedis = false;
@@ -105,9 +105,9 @@ class Redis extends Provider implements Driver
     {
         if ($this->connectServer()) {
             $res = array(
-                "info"  => "",
-                "size"  =>  "",
-                "data"  => $this->instant->info(),
+                "info" => "",
+                "size" => "",
+                "data" => $this->instant->info(),
             );
             return $res;
         }

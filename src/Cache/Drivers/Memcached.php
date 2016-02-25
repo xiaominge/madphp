@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Cache\Drivers;
-use Madphp\Cache\Provider;
-use Madphp\Cache\Driver;
 
-class Memcached extends Provider implements Driver
+use Madphp\Cache\DriverAbstract;
+
+class Memcached extends DriverAbstract
 {
     var $instant;
 
@@ -47,15 +47,15 @@ class Memcached extends Provider implements Driver
             $name = isset($server[0]) ? $server[0] : "127.0.0.1";
             $port = isset($server[1]) ? $server[1] : 11211;
             $sharing = isset($server[2]) ? $server[2] : 0;
-            $checked = $name."_".$port;
+            $checked = $name . "_" . $port;
             if (!isset($this->checked[$checked])) {
                 try {
-                    if ($sharing >0 ) {
+                    if ($sharing > 0) {
                         if (!$this->instant->addServer($name, $port, $sharing)) {
                             $this->fallback = true;
                         }
                     } else {
-                        if (!$this->instant->addServer($name,$port)) {
+                        if (!$this->instant->addServer($name, $port)) {
                             $this->fallback = true;
                         }
                     }
@@ -102,8 +102,8 @@ class Memcached extends Provider implements Driver
         $this->connectServer();
         $res = array(
             "info" => "",
-            "size"  =>  "",
-            "data"  => $this->instant->getStats(),
+            "size" => "",
+            "data" => $this->instant->getStats(),
         );
 
         return $res;

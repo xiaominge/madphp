@@ -10,9 +10,15 @@ namespace Madphp;
 class Cache
 {
 
-    public static function __callstatic($method, $parameters)
+    public static function __callstatic($method, $parameters = array())
     {
-        return Cache\Factory::instance(strtolower($method), $parameters[0]);
+        if (empty($parameters) or empty($parameters[0])) {
+            $configs = array();
+        } else {
+            $configs = $parameters[0];
+        }
+
+        return Cache\Util::instance(strtolower($method), $configs);
     }
 
     /**
@@ -22,6 +28,6 @@ class Cache
      */
     public static function isExistingDriver($name)
     {
-        return Cache\Provider::isExistingDriver($name);
+        return Cache\Util::isExistingDriver($name);
     }
 }

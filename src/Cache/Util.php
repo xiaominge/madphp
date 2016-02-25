@@ -2,7 +2,7 @@
 
 namespace Madphp\Cache;
 
-class Factory
+class Util
 {
     protected static $tmp = array();
 
@@ -10,37 +10,40 @@ class Factory
 
     public static $config = array(
         // blank for auto
-        "storage"       =>  "",
+        "storage" => "",
         // 0777 , 0666, 0644
-        "default_chmod" =>  0777,
+        "default_chmod" => 0777,
         /*
          * Fall back when old driver is not support
          */
-        "fallback"  => "file",
+        "fallback" => "file",
 
-        "securityKey"   =>  "auto",
-        "htaccess"      =>  true,
-        "path"          =>  "",
+        "securityKey" => "auto",
+        "htaccess" => true,
+        "path" => "",
 
-        "memcache"      =>  array(
+        "memcache" => array(
             array("127.0.0.1", 11211, 1),
         ),
 
-        "redis"         =>  array(
-            "host"      =>  "127.0.0.1",
-            "port"      =>  "",
-            "password"  =>  "",
-            "database"  =>  "",
-            "timeout"   =>  ""
+        "redis" => array(
+            "host" => "127.0.0.1",
+            "port" => "",
+            "password" => "",
+            "database" => "",
+            "timeout" => ""
         ),
 
-        "extensions"    =>  array(),
+        "extensions" => array(),
     );
 
-    private function __construct() {}
+    private function __construct()
+    {
+        
+    }
 
     /**
-     * 获取实例
+     * 获取实例|简单工厂
      * @param string $storage
      * @param array $config
      * @return mixed
@@ -70,7 +73,7 @@ class Factory
                 $tmp_dir = ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : sys_get_temp_dir();
                 $path = $tmp_dir;
             } else {
-                $path = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], "/").'/' : rtrim(dirname(__FILE__), "/")."/";
+                $path = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], "/") . '/' : rtrim(dirname(__FILE__), "/") . "/";
             }
 
             if (self::$config['path'] != "") {
@@ -93,10 +96,10 @@ class Factory
             $securityKey .= "/";
         }
 
-        $full_path = rtrim($path, "/")."/".$securityKey;
+        $full_path = rtrim($path, "/") . "/" . $securityKey;
         $full_pathx = md5($full_path);
 
-        if ($skip_create_path  == false && !isset(self::$tmp[$full_pathx])) {
+        if ($skip_create_path == false && !isset(self::$tmp[$full_pathx])) {
             if (!file_exists($full_path) || !is_writable($full_path)) {
                 if (!file_exists($full_path)) {
                     mkdirs($full_path, self::setChmodAuto($config));
@@ -105,7 +108,7 @@ class Factory
                     chmod($full_path, self::setChmodAuto($config));
                 }
                 if (!file_exists($full_path) || !is_writable($full_path)) {
-                    throw new \Exception($full_path." 需要可写权限");
+                    throw new \Exception($full_path . " 需要可写权限");
                 }
             }
             self::$tmp[$full_pathx] = true;
@@ -153,7 +156,7 @@ class Factory
                 try {
                     chmod($path, 0777);
                 } catch (\Exception $e) {
-                    throw new \Exception($path." 需要可写权限");
+                    throw new \Exception($path . " 需要可写权限");
                 }
             }
             if (!file_exists(rtrim($path, '/') . "/" . ".htaccess")) {
@@ -161,7 +164,7 @@ class Factory
 
                 $f = @fopen(rtrim($path, '/') . "/" . ".htaccess", "w+");
                 if (!$f) {
-                    throw new \Exception($path." 需要 777 权限");
+                    throw new \Exception($path . " 需要 777 权限");
                 }
                 fwrite($f, $text);
                 fclose($f);
@@ -175,7 +178,7 @@ class Factory
             "os" => PHP_OS,
             "php" => PHP_SAPI,
             "system" => php_uname(),
-            "unique" => md5(php_uname().PHP_OS.PHP_SAPI)
+            "unique" => md5(php_uname() . PHP_OS . PHP_SAPI)
         );
         return $os;
     }
@@ -183,9 +186,25 @@ class Factory
     public static function setup($name, $value = "")
     {
         if (is_array($name)) {
-            self::$config = $name;
+            self::$config = array_merge(self::$config, $name);
         } else {
             self::$config[$name] = $value;
         }
+    }
+
+    public static function isExistingDriver($class)
+    {
+        $namex = ucfirst(strtolower($class));
+        if (!file_exists(dirname(__FILE__) . "/Drivers/" . $namex . ".php")) {
+            return false;
+        }
+
+        require_once(dirname(__FILE__) . "/Drivers/" . $namex . ".php");
+        $class = __NAMESPACE__ . "\\Drivers\\" . $namex;
+        if (class_exists($class)) {
+            return true;
+        }
+
+        return false;
     }
 }

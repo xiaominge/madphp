@@ -3,15 +3,17 @@
 namespace Madphp\Cache;
 
 /*
-* 使用模板模式
+* 模板方法模式
 */
-abstract class Provider
+abstract class DriverAbstract implements DriverInterface
 {
 
     var $tmp = array();
 
     // default options, this will be merge to Driver's Options
     var $option = array();
+
+    var $defaultTtl = 157680000; // 3600 * 24 * 365 * 5
 
     var $fallback = false;
     var $instant;
@@ -24,17 +26,17 @@ abstract class Provider
     public function set($keyword, $value = "", $time = 0, $option = array())
     {
         if ((Int)$time <= 0) {
-            $time = 3600 * 24 * 365 * 5;
+            $time = $this->defaultTtl;
         }
 
-        if (Factory::$disabled === true) {
+        if (Util::$disabled === true) {
             return false;
         }
         $object = array(
             "value" => $value,
-            "write_time"  => @date("U"),
-            "expired_in"  => $time,
-            "expired_time"  => @date("U") + (Int)$time,
+            "write_time" => time(),
+            "expired_in" => $time,
+            "expired_time" => time() + (Int)$time,
         );
 
         return $this->driverSet($keyword, $object, $time, $option);
@@ -42,7 +44,7 @@ abstract class Provider
 
     public function get($keyword, $option = array())
     {
-        if (Factory::$disabled === true) {
+        if (Util::$disabled === true) {
             return null;
         }
 
@@ -51,6 +53,7 @@ abstract class Provider
         if ($object == null) {
             return null;
         }
+
         return isset($option['all_keys']) && $option['all_keys'] ? $object : $object['value'];
     }
 
@@ -114,7 +117,7 @@ abstract class Provider
         }
     }
 
-    function decrement($keyword, $step = 1 , $option = array())
+    function decrement($keyword, $step = 1, $option = array())
     {
         $object = $this->get($keyword, array('all_keys' => true));
         if ($object == null) {
@@ -270,7 +273,7 @@ abstract class Provider
 
     protected function backup()
     {
-        return Instance::get(Factory::$config['fallback']);
+        return Instance::get(Util::$config['fallback']);
     }
 
     /*
@@ -299,7 +302,7 @@ abstract class Provider
         $backup_option = $this->option;
 
         if (count($this->option("system")) == 0) {
-            
+
             $this->option['system']['storage'] = "file";
             $this->option['system']['storages'] = array();
             $dir = @opendir(dirname(__FILE__) . "/Drivers/");
@@ -311,7 +314,7 @@ abstract class Provider
                 if ($file != "." && $file != ".." && strpos($file, ".php") !== false) {
                     require_once(dirname(__FILE__) . "/Drivers/" . $file);
                     $namex = str_replace(".php", "", $file);
-                    $class = __NAMESPACE__."\\Drivers\\".$namex;
+                    $class = __NAMESPACE__ . "\\Drivers\\" . $namex;
                     $this->option['skipError'] = true;
                     $driver = new $class($this->option);
                     $driver->option = $this->option;
@@ -330,7 +333,7 @@ abstract class Provider
         }
 
         $this->option("path", self::getPath(true));
-        
+
         $systemInfo = $this->option;
         $this->option = $backup_option;
         return array('systemInfo' => $systemInfo, 'option' => $this->option);
@@ -338,8 +341,8 @@ abstract class Provider
 
     function option($name, $value = null)
     {
-       if ($value == null) {
-           if (isset($this->option[$name])) {
+        if ($value == null) {
+            if (isset($this->option[$name])) {
                 return $this->option[$name];
             } else {
                 return null;
@@ -349,7 +352,7 @@ abstract class Provider
                 $this->checked['path'] = false;
             }
 
-            Factory::$config[$name] = $value;
+            Util::$config[$name] = $value;
             $this->option[$name] = $value;
 
             return $this;
@@ -358,22 +361,8 @@ abstract class Provider
 
     public function setOption($option = array())
     {
-        $this->option = array_merge($this->option, Factory::$config, $option);
+        $this->option = array_merge($this->option, Util::$config, $option);
         $this->checked['path'] = false;
-    }
-
-    public static function isExistingDriver($class)
-    {
-        $namex = ucfirst(strtolower($class));
-        if (file_exists(dirname(__FILE__)."/Drivers/".$namex.".php")) {
-            require_once(dirname(__FILE__)."/Drivers/".$namex.".php");
-            $class = __NAMESPACE__."\\Drivers\\".$namex;
-            if (class_exists($class)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /*
@@ -381,12 +370,12 @@ abstract class Provider
      */
     public function getPath($create_path = false)
     {
-        return Factory::getPath($create_path, $this->option);
+        return Util::getPath($create_path, $this->option);
     }
 
     protected function setChmodAuto()
     {
-        return Factory::setChmodAuto($this->option);
+        return Util::setChmodAuto($this->option);
     }
 
     /**

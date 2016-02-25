@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Cache\Drivers;
-use Madphp\Cache\Provider;
-use Madphp\Cache\Driver;
 
-class Memcache extends Provider implements Driver
+use Madphp\Cache\DriverAbstract;
+
+class Memcache extends DriverAbstract
 {
 
     var $instant;
@@ -15,7 +15,7 @@ class Memcache extends Provider implements Driver
         if (function_exists("\\memcache_connect")) {
             return true;
         }
-	    $this->fallback = true;
+        $this->fallback = true;
         return false;
     }
 
@@ -23,13 +23,13 @@ class Memcache extends Provider implements Driver
     {
         $this->setup($config);
         if (!$this->checkDriver() && !isset($config['skipError'])) {
-	        $this->fallback = true;
+            $this->fallback = true;
         }
-	    if (class_exists("\\Memcache")) {
-		    $this->instant = new \Memcache();
-	    } else {
-		    $this->fallback = true;
-	    }
+        if (class_exists("\\Memcache")) {
+            $this->instant = new \Memcache();
+        } else {
+            $this->fallback = true;
+        }
     }
 
     function connectServer()
@@ -44,45 +44,45 @@ class Memcache extends Provider implements Driver
         foreach ($server as $s) {
             $name = $s[0] . "_" . $s[1];
             if (!isset($this->checked[$name])) {
-	            try {
-		            if (!$this->instant->addServer($s[0], $s[1])) {
-			            $this->fallback = true;
-		            }
-		            $this->checked[$name] = 1;
-	            } catch(\Exception $e) {
-		            $this->fallback = true;
-	            }
+                try {
+                    if (!$this->instant->addServer($s[0], $s[1])) {
+                        $this->fallback = true;
+                    }
+                    $this->checked[$name] = 1;
+                } catch (\Exception $e) {
+                    $this->fallback = true;
+                }
             }
         }
     }
 
     function driverSet($keyword, $value = "", $time = 300, $option = array())
     {
-	    $this->connectServer();
+        $this->connectServer();
 
-	    if (isset($option['skipExisting']) && $option['skipExisting'] == true) {
-		    return $this->instant->add($keyword, $value, false, $time);
-	    } else {
+        if (isset($option['skipExisting']) && $option['skipExisting'] == true) {
+            return $this->instant->add($keyword, $value, false, $time);
+        } else {
             if ($time == (3600 * 24 * 365 * 5)) {
                 $time = 0;
             }
-		    return $this->instant->set($keyword, $value, false, $time);
-	    }
+            return $this->instant->set($keyword, $value, false, $time);
+        }
     }
 
     function driverGet($keyword, $option = array())
     {
         // return null if no caching
         // return value if in caching
-	    $this->connectServer();
+        $this->connectServer();
 
-	    $x = $this->instant->get($keyword);
+        $x = $this->instant->get($keyword);
 
-	    if ($x == false) {
-		    return null;
-	    } else {
-		    return $x;
-	    }
+        if ($x == false) {
+            return null;
+        } else {
+            return $x;
+        }
     }
 
     function driverDelete($keyword, $option = array())
@@ -95,9 +95,9 @@ class Memcache extends Provider implements Driver
     {
         $this->connectServer();
         $res = array(
-            "info"  => "",
-            "size"  =>  "",
-            "data"  => $this->instant->getStats(),
+            "info" => "",
+            "size" => "",
+            "data" => $this->instant->getStats(),
         );
 
         return $res;

@@ -1,10 +1,10 @@
 <?php
 
 namespace Madphp\Cache\Drivers;
-use Madphp\Cache\Provider;
-use Madphp\Cache\Driver;
 
-class File extends Provider implements Driver
+use Madphp\Cache\DriverAbstract;
+
+class File extends DriverAbstract
 {
     function checkDriver()
     {
@@ -27,13 +27,13 @@ class File extends Provider implements Driver
             throw new \Exception("Can't use this driver for your website!");
         }
     }
-    
+
     private function encodeFilename($keyword)
     {
         return trim(trim(preg_replace("/[^a-zA-Z0-9]+/", "_", $keyword), "_"));
         // return rtrim(base64_encode($keyword), '=');
     }
-    
+
     private function decodeFilename($filename)
     {
         return $filename;
@@ -46,26 +46,26 @@ class File extends Provider implements Driver
     private function getFilePath($keyword, $skip = false)
     {
         $path = $this->getPath();
-        
-        $filename = $this->encodeFilename($keyword);        
+
+        $filename = $this->encodeFilename($keyword);
         $folder = substr($filename, 0, 2);
-        $path = rtrim($path, "/")."/".$folder;
+        $path = rtrim($path, "/") . "/" . $folder;
         /*
          * Skip Create Sub Folders;
          */
         if ($skip == false) {
             if (!file_exists($path)) {
                 if (!@mkdir($path, $this->setChmodAuto())) {
-                    throw new \Exception("PLEASE CHMOD ".$this->getPath()." - 0777 OR ANY WRITABLE PERMISSION!", 92);
+                    throw new \Exception("PLEASE CHMOD " . $this->getPath() . " - 0777 OR ANY WRITABLE PERMISSION!", 92);
                 }
             } elseif (!is_writeable($path)) {
                 if (!chmod($path, $this->setChmodAuto())) {
-                    throw new \Exception("PLEASE CHMOD ".$this->getPath()." - 0777 OR ANY WRITABLE PERMISSION! MAKE SURE PHP/Apache/WebServer have Write Permission");
+                    throw new \Exception("PLEASE CHMOD " . $this->getPath() . " - 0777 OR ANY WRITABLE PERMISSION! MAKE SURE PHP/Apache/WebServer have Write Permission");
                 }
             }
         }
 
-        $file_path = $path."/".$filename.".txt";
+        $file_path = $path . "/" . $filename . ".txt";
         return $file_path;
     }
 
@@ -134,30 +134,30 @@ class File extends Provider implements Driver
     function driverStats($option = array())
     {
         $res = array(
-            "info"  =>  "",
-            "size"  =>  "",
-            "data"  =>  "",
+            "info" => "",
+            "size" => "",
+            "data" => "",
         );
 
         $path = $this->getPath();
         $dir = @opendir($path);
         if (!$dir) {
-            throw new \Exception("Can't read PATH:".$path, 94);
+            throw new \Exception("Can't read PATH:" . $path, 94);
         }
 
         $total = 0;
         $removed = 0;
         while ($file = readdir($dir)) {
-            if ($file != "." && $file != ".." && is_dir($path."/".$file)) {
+            if ($file != "." && $file != ".." && is_dir($path . "/" . $file)) {
                 // read sub dir
-                $subdir = @opendir($path."/".$file);
+                $subdir = @opendir($path . "/" . $file);
                 if (!$subdir) {
-                    throw new \Exception("Can't read path:".$path."/".$file, 93);
+                    throw new \Exception("Can't read path:" . $path . "/" . $file, 93);
                 }
 
                 while ($f = readdir($subdir)) {
                     if ($f != "." && $f != "..") {
-                        $file_path = $path."/".$file."/".$f;
+                        $file_path = $path . "/" . $file . "/" . $f;
                         $size = filesize($file_path);
                         $object = $this->decode($this->readfile($file_path));
                         if ($this->isExpired($object)) {
@@ -168,22 +168,22 @@ class File extends Provider implements Driver
                     }
                 } // end read subdir
             } // end if
-       } // end while
+        } // end while
 
-       $res['size']  = $total - $removed;
-       $res['info'] = array(
+        $res['size'] = $total - $removed;
+        $res['info'] = array(
             "Total" => $total,
             "Removed" => $removed,
             "Current" => $res['size'],
-       );
-       return $res;
+        );
+        return $res;
     }
 
     function autoCleanExpired()
     {
         $autoclean = $this->get("keyword_clean_up_driver_files");
         if ($autoclean == null) {
-            $this->set("keyword_clean_up_driver_files", 3600*24);
+            $this->set("keyword_clean_up_driver_files", 3600 * 24);
             $res = $this->stats();
         }
     }
@@ -193,20 +193,20 @@ class File extends Provider implements Driver
         $path = $this->getPath();
         $dir = @opendir($path);
         if (!$dir) {
-            throw new \Exception("Can't read PATH:".$path, 94);
+            throw new \Exception("Can't read PATH:" . $path, 94);
         }
 
         while ($file = readdir($dir)) {
-            if ($file != "." && $file != ".." && is_dir($path."/".$file)) {
+            if ($file != "." && $file != ".." && is_dir($path . "/" . $file)) {
                 // read sub dir
-                $subdir = @opendir($path."/".$file);
+                $subdir = @opendir($path . "/" . $file);
                 if (!$subdir) {
-                    throw new \Exception("Can't read path:".$path."/".$file, 93);
+                    throw new \Exception("Can't read path:" . $path . "/" . $file, 93);
                 }
 
                 while ($f = readdir($subdir)) {
                     if ($f != "." && $f != "..") {
-                        $file_path = $path."/".$file."/".$f;
+                        $file_path = $path . "/" . $file . "/" . $f;
                         @unlink($file_path);
                     }
                 } // end read subdir
