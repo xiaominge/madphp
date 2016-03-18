@@ -126,15 +126,15 @@ class Route
         // 回调函数不是对象
         if (!is_object(self::$callbacks[$pos])) {
             $parts = explode('/', self::$callbacks[$pos]);
-            $last = end($parts);
+            $last = array_pop($parts);
             list($controller, $method) = explode('@', $last);
 
             $actionName = implode('', array_map(function ($v) {
                     return ucfirst(strtolower($v));
-                }, $parts + array($controller, $method))) . 'Action';
+                }, array_merge($parts, array($controller, $method)))) . 'Action';
             $controllerName = implode('', array_map(function ($v) {
                     return ucfirst(strtolower($v));
-                }, $parts + array($controller))) . 'Controller';
+                }, array_merge($parts, array($controller)))) . 'Controller';
 
             if (is_subclass_of($actionName, $controllerName)) {
                 $action = new $actionName();
