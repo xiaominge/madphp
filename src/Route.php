@@ -125,15 +125,23 @@ class Route
     {
         // 回调函数不是对象
         if (!is_object(self::$callbacks[$pos])) {
-            // 用 / 分隔符分隔回调函数为数组
             $parts = explode('/', self::$callbacks[$pos]);
-            // 数组最后一个元素是控制器和方法
             $last = end($parts);
-            // 获取控制器和方法
             list($controller, $method) = explode('@', $last);
-            // 实例化控制器
-            $controller = new $controller();
-            $callback = array($controller, $method);
+
+            $actionName = implode('', array_map(function ($v) {
+                    return ucfirst(strtolower($v));
+                }, $parts + array($controller, $method))) . 'Action';
+            $controllerName = implode('', array_map(function ($v) {
+                    return ucfirst(strtolower($v));
+                }, $parts + array($controller))) . 'Controller';
+
+            if (is_subclass_of($actionName, $controllerName)) {
+                $action = new $actionName();
+                $callback = array($action, 'call');
+            } else {
+                self::_error404();
+            }
         } else {
             $callback = self::$callbacks[$pos];
         }
