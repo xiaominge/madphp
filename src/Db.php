@@ -6,6 +6,7 @@
  */
 
 namespace Madphp;
+Db\Factory::registry();
 
 class Db
 {

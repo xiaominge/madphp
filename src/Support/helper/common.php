@@ -72,7 +72,7 @@ if (!function_exists('is_php')) {
     function is_php($version = '5.0.0')
     {
         static $_is_php;
-        $version = (string) $version;
+        $version = (string)$version;
 
         if (!isset($_is_php[$version])) {
             $_is_php[$version] = (version_compare(PHP_VERSION, $version) < 0) ? FALSE : TRUE;
@@ -126,7 +126,7 @@ if (!function_exists('utf8_str')) {
  * @param string $str 需要计算的字符串
  * @param string $charset 字符编码
  * @return length int
-*/
+ */
 if (!function_exists('abslength')) {
     function abslength($str, $charset = 'utf-8')
     {
@@ -148,18 +148,18 @@ if (!function_exists('abslength')) {
  * @param string $str 需要转换的字符串
  * @param string $start 开始位置
  * @param string $length 截取长度
- * @param string $charset 编码格式
- * @param string $suffix 截断显示字符
  * @param string $strength 字符串的长度
+ * @param string $charset 编码格式
+ * @param string $suffix 显示截断字符
  * @return string
  */
 if (!function_exists('msubstr')) {
     function msubstr($str, $start = 0, $length, $strength, $charset = "utf-8", $suffix = true)
     {
         if (function_exists("mb_substr")) {
-            if ($suffix){
+            if ($suffix) {
                 if ($length < $strength) {
-                    return mb_substr($str, $start, $length, $charset)."…";
+                    return mb_substr($str, $start, $length, $charset) . "…";
                 } else {
                     return mb_substr($str, $start, $length, $charset);
                 }
@@ -170,7 +170,7 @@ if (!function_exists('msubstr')) {
             // 是否加上点号
             if ($suffix) {
                 if ($length < $strength) {
-                    return iconv_substr($str, $start, $length, $charset)."…";
+                    return iconv_substr($str, $start, $length, $charset) . "…";
                 } else {
                     return iconv_substr($str, $start, $length, $charset);
                 }
@@ -185,7 +185,7 @@ if (!function_exists('msubstr')) {
             preg_match_all($re[$charset], $str, $match);
             $slice = join("", array_slice($match[0], $start, $length));
             if ($suffix) {
-                return $slice."…";
+                return $slice . "…";
             } else {
                 return $slice;
             }
@@ -223,8 +223,8 @@ if (!function_exists('random')) {
     function random($length, $chars = '0123456789')
     {
         $numeric = preg_match('/^[0-9]+$/', $chars) ? 1 : 0;
-        $seed = base_convert(md5(microtime().$_SERVER['DOCUMENT_ROOT']), 16, $numeric ? 10 : 35);
-        $seed = $numeric ? (str_replace('0', '', $seed).'012340567890') : ($seed.'zZ'.strtoupper($seed));
+        $seed = base_convert(md5(microtime() . $_SERVER['DOCUMENT_ROOT']), 16, $numeric ? 10 : 35);
+        $seed = $numeric ? (str_replace('0', '', $seed) . '012340567890') : ($seed . 'zZ' . strtoupper($seed));
         if ($numeric) {
             $hash = '';
         } else {
@@ -240,9 +240,9 @@ if (!function_exists('random')) {
 }
 
 /**
-* 生成随机字符串
-* @param  $lenth int 长度
-*/
+ * 生成随机字符串
+ * @param  $lenth int 长度
+ */
 if (!function_exists('create_randomstr')) {
     function create_randomstr($lenth = 6)
     {
@@ -290,7 +290,7 @@ if (!function_exists('sizecount')) {
     {
         $s = array('Bytes', 'KB', 'MB', 'GB', 'TB', 'PB');
         $e = floor(log($filesize, 1024));
-        return sprintf('%.2f '.$s[$e], $filesize / pow(1024, $e));
+        return sprintf('%.2f ' . $s[$e], $filesize / pow(1024, $e));
     }
 }
 
@@ -302,7 +302,7 @@ if (!function_exists('sizecount')) {
 if (!function_exists('get_request_method')) {
     function get_request_method($default = 'get')
     {
-        if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']) {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']) {
             return strtolower($_SERVER['REQUEST_METHOD']);
         }
         return strtolower($default);
@@ -416,12 +416,12 @@ if (!function_exists('new_addslashes')) {
     function new_addslashes($data)
     {
         if (!is_array($data)) {
-            return addslashes ($data);
+            return addslashes($data);
         }
         foreach ($data as $key => $val) {
             $data[$key] = new_addslashes($val);
         }
-        
+
         return $data;
     }
 }
@@ -530,35 +530,35 @@ if (!function_exists('singular')) {
         $result = strval($str);
 
         $singular_rules = array(
-            '/(matr)ices$/'         => '\1ix',
-            '/(vert|ind)ices$/'     => '\1ex',
-            '/^(ox)en/'             => '\1',
-            '/(alias)es$/'          => '\1',
-            '/([octop|vir])i$/'     => '\1us',
-            '/(cris|ax|test)es$/'   => '\1is',
-            '/(shoe)s$/'            => '\1',
-            '/(o)es$/'              => '\1',
-            '/(bus|campus)es$/'     => '\1',
-            '/([m|l])ice$/'         => '\1ouse',
-            '/(x|ch|ss|sh)es$/'     => '\1',
-            '/(m)ovies$/'           => '\1\2ovie',
-            '/(s)eries$/'           => '\1\2eries',
-            '/([^aeiouy]|qu)ies$/'  => '\1y',
-            '/([lr])ves$/'          => '\1f',
-            '/(tive)s$/'            => '\1',
-            '/(hive)s$/'            => '\1',
-            '/([^f])ves$/'          => '\1fe',
-            '/(^analy)ses$/'        => '\1sis',
+            '/(matr)ices$/' => '\1ix',
+            '/(vert|ind)ices$/' => '\1ex',
+            '/^(ox)en/' => '\1',
+            '/(alias)es$/' => '\1',
+            '/([octop|vir])i$/' => '\1us',
+            '/(cris|ax|test)es$/' => '\1is',
+            '/(shoe)s$/' => '\1',
+            '/(o)es$/' => '\1',
+            '/(bus|campus)es$/' => '\1',
+            '/([m|l])ice$/' => '\1ouse',
+            '/(x|ch|ss|sh)es$/' => '\1',
+            '/(m)ovies$/' => '\1\2ovie',
+            '/(s)eries$/' => '\1\2eries',
+            '/([^aeiouy]|qu)ies$/' => '\1y',
+            '/([lr])ves$/' => '\1f',
+            '/(tive)s$/' => '\1',
+            '/(hive)s$/' => '\1',
+            '/([^f])ves$/' => '\1fe',
+            '/(^analy)ses$/' => '\1sis',
             '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/' => '\1\2sis',
-            '/([ti])a$/'            => '\1um',
-            '/(p)eople$/'           => '\1\2erson',
-            '/(m)en$/'              => '\1an',
-            '/(s)tatuses$/'         => '\1\2tatus',
-            '/(c)hildren$/'         => '\1\2hild',
-            '/(n)ews$/'             => '\1\2ews',
-            '/([^u])s$/'            => '\1',
+            '/([ti])a$/' => '\1um',
+            '/(p)eople$/' => '\1\2erson',
+            '/(m)en$/' => '\1an',
+            '/(s)tatuses$/' => '\1\2tatus',
+            '/(c)hildren$/' => '\1\2hild',
+            '/(n)ews$/' => '\1\2ews',
+            '/([^u])s$/' => '\1',
         );
-        
+
         foreach ($singular_rules as $rule => $replacement) {
             if (preg_match($rule, $result)) {
                 $result = preg_replace($rule, $replacement, $result);
@@ -581,15 +581,15 @@ if (!function_exists('remove_invisible_characters')) {
     function remove_invisible_characters($str, $url_encoded = TRUE)
     {
         $non_displayables = array();
-        
+
         // every control character except newline (dec 10)
         // carriage return (dec 13), and horizontal tab (dec 09)
-        
+
         if ($url_encoded) {
             $non_displayables[] = '/%0[0-8bcef]/';  // url encoded 00-08, 11, 12, 14, 15
             $non_displayables[] = '/%1[0-9a-f]/';   // url encoded 16-31
         }
-        
+
         $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';   // 00-08, 11, 12, 14-31, 127
 
         do {
@@ -606,7 +606,11 @@ if (!function_exists('console')) {
         if (class_exists('FirePHP')) {
             $instance = FirePHP::getInstance(true);
             $args = func_get_args();
-            call_user_func_array(array($instance, 'fb'), $args);
+            try {
+                call_user_func_array(array($instance, 'fb'), $args);
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
         } else {
             var_dump($var);
         }
@@ -615,33 +619,33 @@ if (!function_exists('console')) {
 
 /**
  * 字符串半角和全角间相互转换
- * @param string $str  待转换的字符串
- * @param int    $type  TODBC:转换为半角；TOSBC，转换为全角
+ * @param string $str 待转换的字符串
+ * @param int $type TODBC:转换为半角；TOSBC，转换为全角
  * @return string  返回转换后的字符串
  */
 if (!function_exists('convertStrType')) {
     function convertStrType($str, $type)
     {
         $dbc = array(
-            '０' , '１' , '２' , '３' , '４' ,
-            '５' , '６' , '７' , '８' , '９' ,
-            'Ａ' , 'Ｂ' , 'Ｃ' , 'Ｄ' , 'Ｅ' ,
-            'Ｆ' , 'Ｇ' , 'Ｈ' , 'Ｉ' , 'Ｊ' ,
-            'Ｋ' , 'Ｌ' , 'Ｍ' , 'Ｎ' , 'Ｏ' ,
-            'Ｐ' , 'Ｑ' , 'Ｒ' , 'Ｓ' , 'Ｔ' ,
-            'Ｕ' , 'Ｖ' , 'Ｗ' , 'Ｘ' , 'Ｙ' ,
-            'Ｚ' , 'ａ' , 'ｂ' , 'ｃ' , 'ｄ' ,
-            'ｅ' , 'ｆ' , 'ｇ' , 'ｈ' , 'ｉ' ,
-            'ｊ' , 'ｋ' , 'ｌ' , 'ｍ' , 'ｎ' ,
-            'ｏ' , 'ｐ' , 'ｑ' , 'ｒ' , 'ｓ' ,
-            'ｔ' , 'ｕ' , 'ｖ' , 'ｗ' , 'ｘ' ,
-            'ｙ' , 'ｚ' , '－' , '　'  , '：',
-            '．' , '，' , '／' , '％' , '＃' ,
-            '！' , '＠' , '＆' , '（' , '）' ,
-            '＜' , '＞' , '＂' , '＇' , '？' ,
-            '［' , '］' , '｛' , '｝' , '＼' ,
-            '｜' , '＋' , '＝' , '＿' , '＾' ,
-            '￥' , '￣' , '｀',
+            '０', '１', '２', '３', '４',
+            '５', '６', '７', '８', '９',
+            'Ａ', 'Ｂ', 'Ｃ', 'Ｄ', 'Ｅ',
+            'Ｆ', 'Ｇ', 'Ｈ', 'Ｉ', 'Ｊ',
+            'Ｋ', 'Ｌ', 'Ｍ', 'Ｎ', 'Ｏ',
+            'Ｐ', 'Ｑ', 'Ｒ', 'Ｓ', 'Ｔ',
+            'Ｕ', 'Ｖ', 'Ｗ', 'Ｘ', 'Ｙ',
+            'Ｚ', 'ａ', 'ｂ', 'ｃ', 'ｄ',
+            'ｅ', 'ｆ', 'ｇ', 'ｈ', 'ｉ',
+            'ｊ', 'ｋ', 'ｌ', 'ｍ', 'ｎ',
+            'ｏ', 'ｐ', 'ｑ', 'ｒ', 'ｓ',
+            'ｔ', 'ｕ', 'ｖ', 'ｗ', 'ｘ',
+            'ｙ', 'ｚ', '－', '　', '：',
+            '．', '，', '／', '％', '＃',
+            '！', '＠', '＆', '（', '）',
+            '＜', '＞', '＂', '＇', '？',
+            '［', '］', '｛', '｝', '＼',
+            '｜', '＋', '＝', '＿', '＾',
+            '￥', '￣', '｀',
         );
 
         $sbc = array( //半角
@@ -660,16 +664,16 @@ if (!function_exists('convertStrType')) {
             'y', 'z', '-', ' ', ':',
             '.', ',', '/', '%', ' #',
             '!', '@', '&', '(', ')',
-            '<', '>', '"', '\'','?',
+            '<', '>', '"', '\'', '?',
             '[', ']', '{', '}', '\\',
             '|', '+', '=', '_', '^',
             '￥', '~', '`',
         );
 
         if ($type == 'TODBC') {
-            return str_replace( $sbc, $dbc, $str );  //半角到全角
+            return str_replace($sbc, $dbc, $str);  //半角到全角
         } elseif ($type == 'TOSBC') {
-            return str_replace( $dbc, $sbc, $str );  //全角到半角
+            return str_replace($dbc, $sbc, $str);  //全角到半角
         } else {
             return $str;
         }
@@ -704,4 +708,55 @@ function curl_post($url, $data)
     $result = curl_exec($ch);
     curl_close($ch);
     return $result;
+}
+
+/**
+ * 字符串截取 支持UTF8/GBK
+ * @param $string
+ * @param $length
+ * @param string $dot
+ * @param string $charset
+ * @return mixed|string
+ */
+function str_cut($string, $length, $dot = '...', $charset = 'utf-8')
+{
+    if (!is_string($string)) return '';
+    $string = strip_tags($string);
+    $string = str_replace(array('&nbsp;', '&amp;', '&quot;', '&#039;', '&ldquo;', '&rdquo;', '&mdash;', '&lt;', '&gt;', '&middot;', '&hellip;'), array(' ', '&', '"', "'", '“', '”', '—', '<', '>', '·', '…'), $string);
+    $string = preg_replace('/^(　){2,}/', '', trim($string));
+
+    $strlen = strlen($string);
+    $i = $m = $n = 0;
+    do {
+        if (preg_match("/[0-9a-zA-Z]/", $string[$i])) { // 纯英文
+            $m++;
+        } else {
+            $n++;
+        } // 非英文字节,
+        $k = $n / 3 + $m / 2;
+        $len = $n / 3 + $m; // 最终截取长度；$len = $n/3+$m*2？
+        $i++;
+    } while ($k < $length);
+    if ($strlen <= $m + $n)
+        return $string;
+    //截取字符串
+    $len = intval($len);
+    if (function_exists("mb_substr")) {
+        $strcut = mb_substr($string, 0, $len, $charset);
+    } elseif (function_exists('iconv_substr')) {
+        $strcut = iconv_substr($string, 0, $len, $charset);
+        if (false === $strcut) {
+            $strcut = $dot = '';
+        }
+    } else {
+        $re['utf-8'] = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xff][\x80-\xbf]{3}/";
+        $re['gb2312'] = "/[\x01-\x7f]|[\xb0-\xf7][\xa0-\xfe]/";
+        $re['gbk'] = "/[\x01-\x7f]|[\x81-\xfe][\x40-\xfe]/";
+        $re['big5'] = "/[\x01-\x7f]|[\x81-\xfe]([\x40-\x7e]|\xa1-\xfe])/";
+        preg_match_all($re[$charset], $string, $match);
+        count($match[0]) <= $length && $dot = '';
+        $strcut = join("", array_slice($match[0], 0, $len));
+    }
+    $strcut = str_replace(array('&', '"', "'", '“', '”', '—', '<', '>', '·', '…'), array('&amp;', '&quot;', '&#039;', '&ldquo;', '&rdquo;', '&mdash;', '&lt;', '&gt;', '&middot;', '&hellip;'), $strcut);
+    return $strcut . $dot;
 }

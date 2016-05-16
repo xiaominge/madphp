@@ -91,9 +91,11 @@ class View
     public function show()
     {
         $output = ViewUtil::render($this);
-        Response::setBody($output);
-        $ret = Response::send();
-        if (!$ret) {
+        try {
+            echo $output;
+//            Response::setBody($output);
+//            $ret = Response::send();
+        } catch (\Exception $e) {
             throw new \Exception("View output error!");
         }
         return true;

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 注册模式
+ */
 namespace Madphp\Db;
 
 abstract class Factory
@@ -11,17 +14,37 @@ abstract class Factory
         'pdo', 'mongo',
     );
 
+    public static function registry()
+    {
+        foreach (self::$types as $type) {
+            $class = __NAMESPACE__ . "\\" . ucfirst(strtolower($type)) . "Factory";
+            self::setInstance($type, new $class);
+        }
+    }
+
     public static function getInstance($type)
     {
+        if (self::checkInstance($type)) {
+            return self::$instances[$type];
+        }
+
+        throw new \Exception("$type not found!");
+    }
+
+    public static function setInstance($type, $obj)
+    {
+        self::$instances[$type] = $obj;
+    }
+
+    public static function checkInstance($type)
+    {
         if (!in_array($type, self::$types)) {
-            throw new \Exception("$type not found!");
+            throw new \Exception("$type not define!");
         }
 
         if (empty(self::$instances[$type])) {
-            $dbFactory = __NAMESPACE__ . "\\" . ucfirst(strtolower($type)) . "Factory";
-            self::$instances[$type] = new $dbFactory;
+            return false;
         }
-
-        return self::$instances[$type];
+        return true;
     }
 }

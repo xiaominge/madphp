@@ -4,7 +4,7 @@ namespace Madphp\Db\Pdo;
 
 abstract class Connection implements PdoInterface
 {
-    
+
     /**
      * @var \PDOStatement
      */
@@ -14,16 +14,44 @@ abstract class Connection implements PdoInterface
      * @var \PDO
      */
     protected $_PDOConn;
-    
+
     protected $queryCount = 0;
-    
+
     /**
-	 * The default fetch style of the connection.
-	 *
-	 * @var int
-	 */
-	protected $fetchStyle = \PDO::FETCH_ASSOC;
-    
+     * 是否选择主数据库
+     * @var false
+     */
+    protected $isWrite = false;
+
+    /**
+     * 连接方式
+     * @var null
+     */
+    protected $modality = null;
+
+    /**
+     * 写模式
+     */
+    const MODALITY_WRITE = 'write';
+
+    /**
+     * 读取模式
+     */
+    const MODALITY_READ = 'read';
+
+    /**
+     * 是否Debug
+     * @var bool
+     */
+    protected $debug = true;
+
+    /**
+     * The default fetch style of the connection.
+     *
+     * @var int
+     */
+    protected $fetchStyle = \PDO::FETCH_ASSOC;
+
     /**
      * 数据类型
      * @var array
@@ -65,7 +93,58 @@ abstract class Connection implements PdoInterface
         $this->_attribute[$attribute] = $value;
         return $this;
     }
-    
+
+    /**
+     * 连接主服务器
+     * @return $this
+     */
+    public function setIsWrite()
+    {
+        $this->isWrite = true;
+        return $this;
+    }
+
+    /**
+     * 取消连接主服务器
+     * @return $this
+     */
+    public function resetIsWrite()
+    {
+        $this->isWrite = false;
+        return $this;
+    }
+
+    /**
+     * 设置是否Debug
+     * @param bool|true $is
+     * @return $this
+     */
+    public function setDebug($is = true)
+    {
+        $this->debug = $is;
+        return $this;
+    }
+
+    /**
+     * Get the fetch style for the connection.
+     * @return int
+     */
+    public function getFetchStyle()
+    {
+        return $this->fetchStyle;
+    }
+
+    /**
+     * Set the default fetch style for the connection.
+     * @param $fetchStyle
+     * @return $this
+     */
+    public function setFetchStyle($fetchStyle)
+    {
+        $this->fetchStyle = $fetchStyle;
+        return $this;
+    }
+
     /**
      * 插入数据
      * @param $sql
@@ -76,7 +155,7 @@ abstract class Connection implements PdoInterface
     public function insert($sql, array $parameterMap = array(), array $sqlMap = array())
     {
         $this->trace();
-        $this->getStatement($sql, $sqlMap, $parameterMap);
+        $this->setIsWrite()->getStatement($sql, $sqlMap, $parameterMap);
         return $this;
     }
 
@@ -90,7 +169,7 @@ abstract class Connection implements PdoInterface
     public function update($sql, $sqlMap = array(), $parameterMap = array())
     {
         $this->trace($sql, $sqlMap, $parameterMap);
-        $this->getStatement($sql, $sqlMap, $parameterMap);
+        $this->setIsWrite()->getStatement($sql, $sqlMap, $parameterMap);
         return $this;
     }
 
@@ -104,7 +183,7 @@ abstract class Connection implements PdoInterface
     public function delete($sql, $sqlMap = array(), $parameterMap = array())
     {
         $this->trace($sql, $sqlMap, $parameterMap);
-        $this->getStatement($sql, $sqlMap, $parameterMap);
+        $this->setIsWrite()->getStatement($sql, $sqlMap, $parameterMap);
         return $this;
     }
 
@@ -117,11 +196,11 @@ abstract class Connection implements PdoInterface
     public function query($sql)
     {
         $this->trace($sql, array(), array());
-        return $this->connect()->query($sql);
+        return $this->setIsWrite()->connect()->query($sql);
     }
-    
+
     /**
-     * 执行修改或删除
+     * 执行插入修改或删除
      * @param $sql
      * @return bool|int
      * @throws DebugException
@@ -129,7 +208,7 @@ abstract class Connection implements PdoInterface
     public function exec($sql)
     {
         $this->trace($sql, array(), array());
-        return $this->connect()->exec($sql);
+        return $this->setIsWrite()->connect()->exec($sql);
     }
 
     /**
@@ -142,47 +221,44 @@ abstract class Connection implements PdoInterface
     public function fetchAll($sql, $sqlMap = array(), $parameterMap = array())
     {
         $this->trace($sql, $sqlMap, $parameterMap);
-        $style = $this->getFetchStyle();
         $sth = $this->getStatement($sql, $sqlMap, $parameterMap);
-        $data = $sth->fetchAll($style);
+        $data = $sth->fetchAll($this->getFetchStyle());
         return $data;
     }
-    
-    /**
-	 * Run a select statement and return a single result.
-	 *
-	 * @param  string  $sql
-	 * @param  array   $sqlMap
-     * @param  array   $parameterMap
-	 * @return mixed
-	 */
-	public function fetchOne($sql, $sqlMap = array(), $parameterMap = array())
-	{
-		$data = $this->fetchAll($sql, $sqlMap, $parameterMap);
 
-		return count($data) > 0 ? reset($data) : null;
-	}
-    
     /**
-	 * @param  string  $sql
-	 * @param  int  $columnNumber
-	 * @param  array   $sqlMap
-     * @param  array   $parameterMap
-	 * @return mixed
-	 */
-	public function fetchColumn($sql, $columnNumber = 0, $sqlMap = array(), $parameterMap = array())
-	{
+     * Run a select statement and return a single result.
+     *
+     * @param  string $sql
+     * @param  array $sqlMap
+     * @param  array $parameterMap
+     * @return mixed
+     */
+    public function fetchOne($sql, $sqlMap = array(), $parameterMap = array())
+    {
+        $data = $this->fetchAll($sql, $sqlMap, $parameterMap);
+        return count($data) > 0 ? reset($data) : null;
+    }
+
+    /**
+     * @param  string $sql
+     * @param  int $columnNumber
+     * @param  array $sqlMap
+     * @param  array $parameterMap
+     * @return mixed
+     */
+    public function fetchColumn($sql, $columnNumber = 0, $sqlMap = array(), $parameterMap = array())
+    {
         $data = array();
         $this->trace($sql, $sqlMap, $parameterMap);
-
         $sth = $this->getStatement($sql, $sqlMap, $parameterMap);
-		while ($row = $sth->fetchColumn($columnNumber)) {
-             $data[] = $row;
-         }
+        while ($row = $sth->fetchColumn($columnNumber)) {
+            $data[] = $row;
+        }
 
-		return $data ? $data : false;
-	}
-    
+        return $data ? $data : false;
+    }
+
     /**
      * 获取插入的ID
      * @param null $name
@@ -255,24 +331,7 @@ abstract class Connection implements PdoInterface
     {
         return $this->_PDOConn->errorInfo();
     }
-    
-    public function getFetchStyle()
-	{
-		return $this->fetchStyle;
-	}
 
-	/**
-	 * Set the default fetch style for the connection.
-	 *
-	 * @param  int  $fetchStyle
-	 * @return int
-	 */
-	public function setFetchStyle($fetchStyle)
-	{
-		$this->fetchStyle = $fetchStyle;
-        return $this;
-	}
-    
     /**
      * 检查是否在一个事务内
      * @return bool
@@ -283,7 +342,7 @@ abstract class Connection implements PdoInterface
         $this->_PDOConn = $this->connect();
         return $this->_PDOConn->inTransaction();
     }
-    
+
     /**
      * 开启事务
      * @throws DebugException
@@ -313,7 +372,7 @@ abstract class Connection implements PdoInterface
         $this->_PDOConn = $this->connect();
         $this->_PDOConn->rollBack();
     }
-    
+
     /**
      * @param $sql
      * @param $sqlMap
@@ -326,7 +385,7 @@ abstract class Connection implements PdoInterface
         $this->sql = $sql;
         $this->parameterMap = $parameterMap;
         $this->sqlMap = $sqlMap;
-        
+
         $sql = $this->sqlMap($sql, $sqlMap);
         $this->_PDOConn = $conn = $this->connect();
         $this->_PDOStatement = $sth = $conn->prepare($sql);
@@ -334,7 +393,7 @@ abstract class Connection implements PdoInterface
         $sth->execute();
         return $sth;
     }
-    
+
     /**
      * @param $sql
      * @param array $sqlMap
@@ -352,7 +411,7 @@ abstract class Connection implements PdoInterface
         }
         return strtr($sql, $replacePairs);
     }
-    
+
     /**
      * 绑定数据
      * @param array $params
@@ -368,8 +427,9 @@ abstract class Connection implements PdoInterface
             $dataType = $this->paramType[strtolower(gettype($value))];
             $sth->bindValue($parameter, $value, $dataType);
         }
+
     }
-    
+
     /**
      * debug
      * @param $sql
@@ -400,19 +460,8 @@ abstract class Connection implements PdoInterface
                 $asSql = substr_replace($asSql, $val, $strPos, 1);
             }
         }
-        console(array('Query' => $this->queryCount, 'sql'=>$asSql,));
+        console(array('Query' => $this->queryCount, 'sql' => $asSql,));
         return $asSql;
-    }
-
-    /**
-     * 设置是否Debug
-     * @param bool|true $is
-     * @return $this
-     */
-    public function setDebug($is = true)
-    {
-        $this->debug = $is;
-        return $this;
     }
 
     /**

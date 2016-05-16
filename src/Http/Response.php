@@ -33,7 +33,7 @@ class Response
      * @var array
      */
     protected $headers = array(
-        'X-Powered-By' => 'Madphp/1.0',
+        'H-Powered-By' => 'Madphp/1.0',
     );
 
     /**

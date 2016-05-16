@@ -5,8 +5,6 @@ namespace Madphp\Db;
 class PdoFactory
 {
 
-    public static $modality = 'read';
-
     public static $instances = array();
 
     public function __construct()
@@ -16,28 +14,22 @@ class PdoFactory
 
     public function createDb($dbname, $config = array(), $type = 'mysql')
     {
-
-        if (isset($config['modality']) && in_array($config['modality'], array('write', 'read'))) {
-            $modality = $config['modality'];
-        } else {
-            $modality = self::$modality;
-        }
-
-        $instance = $type . '_pdo_' . $modality . '_' . $dbname;
+        $instance = 'pdo_' . $type . '_' . $dbname . '_';
         $classPrefix = '\Pdo\\Engine\\';
-        if (!isset(self::$instances[$instance])) {
-            $class = __NAMESPACE__ . $classPrefix . ucfirst(strtolower($type));
-            if (class_exists($class)) {
-                try {
-                    self::$instances[$instance] = new $class($dbname, $modality, $config);
-                } catch (\Exception $exc) {
-                    throw new \Exception("$class can not new!");
-                }
-            } else {
-                throw new \Exception("$class not found!");
-            }
+        if (isset(self::$instances[$instance])) {
+            return self::$instances[$instance];
         }
 
+        $class = __NAMESPACE__ . $classPrefix . ucfirst(strtolower($type));
+        if (!class_exists($class)) {
+            throw new \Exception("$class not found!");
+        }
+
+        try {
+            self::$instances[$instance] = new $class($dbname, $config);
+        } catch (\Exception $exc) {
+            throw new \Exception("$class can not new!");
+        }
         return self::$instances[$instance];
     }
 }

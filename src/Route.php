@@ -29,7 +29,7 @@ class Route
     {
         $uri = ltrim($params[0], '/');
         $callback = $params[1];
-        
+
         array_push(self::$routes, $uri);
         array_push(self::$methods, strtoupper($method));
         array_push(self::$callbacks, $callback);
@@ -39,7 +39,7 @@ class Route
     {
         self::$errorCallback = $callback;
     }
-    
+
     public static function haltOnMatch($flag = true)
     {
         self::$halts = $flag;
@@ -107,7 +107,7 @@ class Route
                     if (self::$methods[$pos] == $method) {
                         self::$foundRoute = true;
                         array_shift($matched);
-                        $handleResult  = self::handle($pos, $matched);
+                        $handleResult = self::handle($pos, $matched);
                         // 是否停止执行此路由的其他回调函数
                         if (self::$halts) {
                             break;
@@ -127,18 +127,12 @@ class Route
         if (!is_object(self::$callbacks[$pos])) {
             $parts = explode('/', self::$callbacks[$pos]);
             $last = array_pop($parts);
-            list($controller, $method) = explode('@', $last);
-
-            $actionName = implode('', array_map(function ($v) {
-                    return ucfirst(strtolower($v));
-                }, array_merge($parts, array($controller, $method)))) . 'Action';
-            $controllerName = implode('', array_map(function ($v) {
-                    return ucfirst(strtolower($v));
-                }, array_merge($parts, array($controller)))) . 'Controller';
-
+            list($controller, $action) = explode('@', $last);
+            $actionName = '\\app\\action\\' . implode('\\', array_merge($parts, [$controller, ucfirst($action)])) . 'Action';
+            $controllerName = '\\app\\controller\\' . implode('\\', array_merge($parts, [ucfirst($controller)])) . 'Controller';
             if (is_subclass_of($actionName, $controllerName)) {
-                $action = new $actionName();
-                $callback = array($action, 'call');
+                $actionObj = new $actionName();
+                $callback = array($actionObj, !empty($actionObj->actionExecuteMethod) ? $actionObj->actionExecuteMethod : 'execute');
             } else {
                 self::_error404();
             }
@@ -156,8 +150,8 @@ class Route
     private static function _error404()
     {
         if (!self::$errorCallback) {
-            self::$errorCallback = function() {
-                header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
+            self::$errorCallback = function () {
+                header($_SERVER['SERVER_PROTOCOL'] . " 404 Not Found");
                 echo '404';
             };
         }
