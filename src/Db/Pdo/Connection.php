@@ -43,7 +43,7 @@ abstract class Connection implements PdoInterface
      * 是否Debug
      * @var bool
      */
-    protected $debug = true;
+    protected $debug = false;
 
     /**
      * The default fetch style of the connection.

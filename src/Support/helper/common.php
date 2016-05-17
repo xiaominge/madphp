@@ -603,17 +603,7 @@ if (!function_exists('remove_invisible_characters')) {
 if (!function_exists('console')) {
     function console($var = null)
     {
-        if (class_exists('FirePHP')) {
-            $instance = FirePHP::getInstance(true);
-            $args = func_get_args();
-            try {
-                call_user_func_array(array($instance, 'fb'), $args);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
-        } else {
-            var_dump($var);
-        }
+        var_dump($var);
     }
 }
 

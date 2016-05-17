@@ -25,6 +25,11 @@ class Route
         ':all' => '.*'
     );
 
+    /**
+     * 路由注册
+     * @param $method
+     * @param $params
+     */
     public static function __callstatic($method, $params)
     {
         $uri = ltrim($params[0], '/');
@@ -45,10 +50,15 @@ class Route
         self::$halts = $flag;
     }
 
+    /**
+     * 执行方法
+     * @return null
+     */
     public static function dispatch()
     {
         // REST
         $method = Request::getMethod();
+
         $urlPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $pathinfo = pathinfo($_SERVER['SCRIPT_NAME']);
         $fileDir = $pathinfo['dirname'];
@@ -73,10 +83,10 @@ class Route
     private static function _exact_dispatch($method, $uri)
     {
         $handleResult = null;
-        // 路由的键
+        // URL的键
         $routePos = array_keys(self::$routes, $uri);
         foreach ($routePos as $pos) {
-            // 请求方法相同
+            // 请求方法相同的URL
             if (self::$methods[$pos] == $method) {
                 self::$foundRoute = true;
                 $handleResult = self::handle($pos);
@@ -140,7 +150,7 @@ class Route
             $callback = self::$callbacks[$pos];
         }
         // 执行回调函数
-        if (is_array($matched) && $matched) {
+        if (!empty($matched) && is_array($matched)) {
             return call_user_func_array($callback, $matched);
         } else {
             return call_user_func($callback);
