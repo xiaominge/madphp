@@ -176,6 +176,24 @@ if (!function_exists('array_forget')) {
     }
 }
 
+//二维数组排序
+function array_sort($arr, $keys, $type = SORT_DESC)
+{
+    $keysvalue = $new_array = array();
+    foreach ($arr as $k => $v) {
+        $keysvalue[$k] = $v[$keys];
+    }
+    if ($type == SORT_ASC) {
+        asort($keysvalue);
+    } elseif ($type == SORT_DESC) {
+        arsort($keysvalue);
+    }
+    reset($keysvalue);
+    foreach ($keysvalue as $k => $v) {
+        $new_array[$k] = $arr[$k];
+    }
+    return $new_array;
+}
 
 function array_remove_empty($arr)
 {
