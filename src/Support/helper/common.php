@@ -36,23 +36,6 @@ function is_ajax()
 }
 
 /**
- * 判断变量是否存在且有值
- * 不适用数组判断数组的键
- * @author 徐亚坤
- */
-if (!function_exists("is_empty")) {
-    function is_empty($var)
-    {
-        if (!isset($var)) {
-            return true;
-        } elseif (isset($var) && !$var) {
-            return true;
-        }
-        return false;
-    }
-}
-
-/**
  * 判断是否链接
  * @author 徐亚坤
  */
@@ -68,12 +51,12 @@ if (!function_exists("is_http")) {
     }
 }
 
-if (!function_exists('is_php')) {
-    function is_php($version = '5.0.0')
+if (!function_exists('is_php_version')) {
+    function is_php_version($version = '5.0.0')
     {
         static $_is_php;
         $version = (string)$version;
-
+        php_version();
         if (!isset($_is_php[$version])) {
             $_is_php[$version] = (version_compare(PHP_VERSION, $version) < 0) ? FALSE : TRUE;
         }
@@ -89,14 +72,13 @@ if (!function_exists('is_php')) {
 if (!function_exists('is_useful')) {
     function is_useful($url)
     {
-        if (!$url) {
+        if (empty($url)) {
             return false;
         }
         if (@fopen($url, 'r')) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }
 
@@ -194,6 +176,193 @@ if (!function_exists('msubstr')) {
 }
 
 /**
+ * 使用多个字符串分割另一个字符串
+ *
+ * @param $delimiters array 分隔字符
+ * @param $string string 输入的字符串
+ * @return array
+ */
+if (!function_exists('multi_explode')) {
+    function multi_explode($delimiters, $string)
+    {
+        $ready = str_replace($delimiters, $delimiters[0], $string);
+        $launch = explode($delimiters[0], $ready);
+        return $launch;
+    }
+}
+
+/**
+ * 获取根节点的层级关系树
+ * @param array $items
+ * @return array
+ */
+if (!function_exists('rootTree')) {
+    function rootTree(Array $items)
+    {
+        foreach ($items as $item) {
+            $items[$item['pid']]['sub'][$item['id']] = &$items[$item['id']];
+        }
+        return isset($items[0]['sub']) ? $items[0]['sub'] : array();
+    }
+}
+
+/**
+ * 获取请求方式
+ * @param  string
+ * @return string
+ */
+if (!function_exists('get_request_method')) {
+    function get_request_method($default = 'get')
+    {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']) {
+            return strtolower($_SERVER['REQUEST_METHOD']);
+        }
+        return strtolower($default);
+    }
+}
+
+/**
+ * 输出调试数据
+ * @param  mixed 数据
+ * @param  bool 是否相关信息
+ * @param  bool 是否退出
+ * @return void
+ */
+if (!function_exists("pp")) {
+    function pp($data, $exit = true, $dump = false)
+    {
+        echo "<pre>";
+        $dump || print_r($data);
+        $dump && var_dump($data);
+        echo "</pre>";
+        $exit && exit();
+    }
+}
+
+if (!function_exists('console')) {
+    function console($var = null)
+    {
+        var_dump($var);
+    }
+}
+
+function curl_post($url, $data)
+{
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    // 文件上传参考 CURLFile
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+
+/**
+ * 获取当前数字在第几部分,返回值从0开始
+ * @param $num 当前数字
+ * @param $total 总数
+ * @param $part 分为几部分
+ * @return mixed
+ */
+function get_part_index($num, $total, $part)
+{
+    return max(0, min(ceil($num / floor($total / $part)) - 1, $part - 1));
+}
+
+/**
+ * 获取文件行数
+ * @param $file
+ * @return int
+ */
+function get_line_num($file)
+{
+    $fp = @fopen($file, 'r') or die("open file failure!");
+    $total_line = 0;
+    if ($fp) {
+        while (stream_get_line($fp, 8192, PHP_EOL)) {
+            $total_line++;
+        }
+        fclose($fp);
+    }
+    return $total_line;
+}
+
+/**
+ * 获取图片信息
+ *
+ * @param  图片地址
+ * @return bool || array
+ */
+if (!function_exists('image_info')) {
+    function image_info($file)
+    {
+        if (!file_exists($file) && !@fopen($file, 'r')) {
+            return false;
+        }
+        $imageinfo = getimagesize($file);
+        if ($imageinfo === false) {
+            return false;
+        }
+        $imagetype = strtolower(substr(image_type_to_extension($imageinfo[2]), 1));
+        $imagesize = filesize($file);
+        return array(
+            'file' => $file,
+            'width' => $imageinfo[0],
+            'height' => $imageinfo[1],
+            'type' => $imagetype,
+            'size' => $imagesize,
+            'mime' => $imageinfo['mime']
+        );
+    }
+}
+
+/**
+ * 获取随机数字，可设定是否重复
+ * @param int $min
+ * @param int $max
+ * @param int $num
+ * @param boolean $re
+ * @return array
+ */
+if (!function_exists('random_nums')) {
+    function random_nums($min, $max, $num, $re = false)
+    {
+        $arr = array();
+        $t = $i = 0;
+        // 如果数字不可重复，防止无限死循环
+        if (!$re) {
+            $num = min($num, $max - $min + 1);
+        }
+        do {
+            // 取随机数
+            $t = mt_rand($min, $max);
+            if (!$re && in_array($t, $arr)) {
+                // 数字重复
+                continue;
+            }
+            $arr[] = $t;
+            ++$i;
+        } while ($i < $num);
+        return $arr;
+    }
+}
+
+/**
+ * 生成随机字符串
+ * @param  $lenth int 长度
+ */
+if (!function_exists('create_randomstr')) {
+    function create_randomstr($lenth = 6)
+    {
+        return random($lenth, '123456789abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ');
+    }
+}
+
+/**
  * 获取请求ip
  * @author 徐亚坤
  * @return ip 地址
@@ -240,46 +409,6 @@ if (!function_exists('random')) {
 }
 
 /**
- * 生成随机字符串
- * @param  $lenth int 长度
- */
-if (!function_exists('create_randomstr')) {
-    function create_randomstr($lenth = 6)
-    {
-        return random($lenth, '123456789abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ');
-    }
-}
-
-/**
- * 获取图片信息
- *
- * @param  图片地址
- * @return bool || array
- */
-if (!function_exists('image_info')) {
-    function image_info($file)
-    {
-        if (!file_exists($file) && !@fopen($file, 'r')) {
-            return false;
-        }
-        $imageinfo = getimagesize($file);
-        if ($imageinfo === false) {
-            return false;
-        }
-        $imagetype = strtolower(substr(image_type_to_extension($imageinfo[2]), 1));
-        $imagesize = filesize($file);
-        return array(
-            'file' => $file,
-            'width' => $imageinfo[0],
-            'height' => $imageinfo[1],
-            'type' => $imagetype,
-            'size' => $imagesize,
-            'mime' => $imageinfo['mime']
-        );
-    }
-}
-
-/**
  * 转换字节数为其他单位
  *
  * @param  $filesize string
@@ -291,118 +420,6 @@ if (!function_exists('sizecount')) {
         $s = array('Bytes', 'KB', 'MB', 'GB', 'TB', 'PB');
         $e = floor(log($filesize, 1024));
         return sprintf('%.2f ' . $s[$e], $filesize / pow(1024, $e));
-    }
-}
-
-/**
- * 获取请求方式
- * @param  string
- * @return string
- */
-if (!function_exists('get_request_method')) {
-    function get_request_method($default = 'get')
-    {
-        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']) {
-            return strtolower($_SERVER['REQUEST_METHOD']);
-        }
-        return strtolower($default);
-    }
-}
-
-if (!function_exists('iconv')) {
-    /**
-     * 系统不开启 iconv 模块时, 自建 iconv(), 使用 MB String 库处理
-     *
-     * @param  string
-     * @param  string
-     * @param  string
-     * @return string
-     */
-    function iconv($from_encoding = 'GBK', $target_encoding = 'UTF-8', $string)
-    {
-        return convert_encoding($string, $from_encoding, $target_encoding);
-    }
-}
-
-/**
- * 兼容性转码
- *
- * 系统转换编码调用此函数, 会自动根据当前环境采用 iconv 或 MB String 处理
- *
- * @param  string
- * @param  string
- * @param  string
- * @return string
- */
-if (!function_exists('convert_encoding')) {
-    function convert_encoding($string, $from_encoding = 'GBK', $target_encoding = 'UTF-8')
-    {
-        if (function_exists('mb_convert_encoding')) {
-            return mb_convert_encoding($string, str_replace('//IGNORE', '', strtoupper($target_encoding)), $from_encoding);
-        } else {
-            if (strtoupper($from_encoding) == 'UTF-16') {
-                $from_encoding = 'UTF-16BE';
-            }
-
-            if (strtoupper($target_encoding) == 'UTF-16') {
-                $target_encoding = 'UTF-16BE';
-            }
-
-            if (strtoupper($target_encoding) == 'GB2312' or strtoupper($target_encoding) == 'GBK') {
-                $target_encoding .= '//IGNORE';
-            }
-
-            return iconv($from_encoding, $target_encoding, $string);
-        }
-    }
-}
-
-/**
- * 输出调试数据
- * @param  mixed 数据
- * @param  bool 是否相关信息
- * @param  bool 是否退出
- * @return void
- */
-if (!function_exists("pp")) {
-    function pp($data, $exit = true, $dump = false)
-    {
-        echo "<pre>";
-        $dump || print_r($data);
-        $dump && var_dump($data);
-        echo "</pre>";
-        $exit && exit();
-    }
-}
-
-/**
- * 获取随机数字，可设定是否重复
- * @param int $min
- * @param int $max
- * @param int $num
- * @param boolean $re
- * @return array
- */
-if (!function_exists('random_nums')) {
-    function random_nums($min, $max, $num, $re = false)
-    {
-        $arr = array();
-        $t = $i = 0;
-        // 如果数字不可重复，防止无限死循环
-        if (!$re) {
-            $num = min($num, $max - $min + 1);
-        }
-        do {
-            // 取随机数
-            $t = mt_rand($min, $max);
-            if (!$re && in_array($t, $arr)) {
-                // 数字重复
-                continue;
-            }
-            $arr[] = $t;
-            ++$i;
-        } while ($i < $num);
-        return $arr;
     }
 }
 
@@ -501,19 +518,51 @@ if (!function_exists('array2string')) {
     }
 }
 
-/**
- * 使用多个字符串分割另一个字符串
- *
- * @param $delimiters array 分隔字符
- * @param $string string 输入的字符串
- * @return array
- */
-if (!function_exists('multi_explode')) {
-    function multi_explode($delimiters, $string)
+if (!function_exists('iconv')) {
+    /**
+     * 系统不开启 iconv 模块时, 自建 iconv(), 使用 MB String 库处理
+     *
+     * @param  string
+     * @param  string
+     * @param  string
+     * @return string
+     */
+    function iconv($from_encoding = 'GBK', $target_encoding = 'UTF-8', $string)
     {
-        $ready = str_replace($delimiters, $delimiters[0], $string);
-        $launch = explode($delimiters[0], $ready);
-        return $launch;
+        return convert_encoding($string, $from_encoding, $target_encoding);
+    }
+}
+
+/**
+ * 兼容性转码
+ *
+ * 系统转换编码调用此函数, 会自动根据当前环境采用 iconv 或 MB String 处理
+ *
+ * @param  string
+ * @param  string
+ * @param  string
+ * @return string
+ */
+if (!function_exists('convert_encoding')) {
+    function convert_encoding($string, $from_encoding = 'GBK', $target_encoding = 'UTF-8')
+    {
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($string, str_replace('//IGNORE', '', strtoupper($target_encoding)), $from_encoding);
+        } else {
+            if (strtoupper($from_encoding) == 'UTF-16') {
+                $from_encoding = 'UTF-16BE';
+            }
+
+            if (strtoupper($target_encoding) == 'UTF-16') {
+                $target_encoding = 'UTF-16BE';
+            }
+
+            if (strtoupper($target_encoding) == 'GB2312' or strtoupper($target_encoding) == 'GBK') {
+                $target_encoding .= '//IGNORE';
+            }
+
+            return iconv($from_encoding, $target_encoding, $string);
+        }
     }
 }
 
@@ -600,13 +649,6 @@ if (!function_exists('remove_invisible_characters')) {
     }
 }
 
-if (!function_exists('console')) {
-    function console($var = null)
-    {
-        var_dump($var);
-    }
-}
-
 /**
  * 字符串半角和全角间相互转换
  * @param string $str 待转换的字符串
@@ -668,36 +710,6 @@ if (!function_exists('convertStrType')) {
             return $str;
         }
     }
-}
-
-/**
- * 获取根节点的层级关系树
- * @param array $items
- * @return array
- */
-if (!function_exists('rootTree')) {
-    function rootTree(Array $items)
-    {
-        foreach ($items as $item) {
-            $items[$item['pid']]['sub'][$item['id']] = &$items[$item['id']];
-        }
-        return isset($items[0]['sub']) ? $items[0]['sub'] : array();
-    }
-}
-
-function curl_post($url, $data)
-{
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    // 文件上传参考 CURLFile
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-    $result = curl_exec($ch);
-    curl_close($ch);
-    return $result;
 }
 
 /**
