@@ -56,7 +56,6 @@ if (!function_exists('is_php_version')) {
     {
         static $_is_php;
         $version = (string)$version;
-        php_version();
         if (!isset($_is_php[$version])) {
             $_is_php[$version] = (version_compare(PHP_VERSION, $version) < 0) ? FALSE : TRUE;
         }
