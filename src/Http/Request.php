@@ -206,7 +206,7 @@ class Request
             return $new_array;
         }
 
-        if (!is_php('5.4') && get_magic_quotes_gpc()) {
+        if (!is_php_version('5.4') && get_magic_quotes_gpc()) {
             $str = stripslashes($str);
         }
 

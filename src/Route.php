@@ -138,11 +138,12 @@ class Route
             $parts = explode('/', self::$callbacks[$pos]);
             $last = array_pop($parts);
             list($controller, $action) = explode('@', $last);
-            $actionName = '\\app\\action\\' . implode('\\', array_merge($parts, [$controller, ucfirst($action)])) . 'Action';
-            $controllerName = '\\app\\controller\\' . implode('\\', array_merge($parts, [ucfirst($controller)])) . 'Controller';
-            if (is_subclass_of($actionName, $controllerName)) {
-                $actionObj = new $actionName();
-                $callback = array($actionObj, !empty($actionObj->actionExecuteMethod) ? $actionObj->actionExecuteMethod : 'execute');
+            $parts[] = ucfirst($controller);
+            $controllerName = '\\app\\controller\\' . implode('\\', $parts) . 'Controller';
+            $actionName = $action . "Action";
+            if (method_exists($controllerName, $actionName)) {
+                $controllerObj = new $controllerName();
+                $callback = array($controllerObj, $actionName);
             } else {
                 self::_error404();
             }
