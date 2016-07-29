@@ -203,7 +203,7 @@ abstract class Connection implements PdoInterface
      * 执行插入修改或删除
      * @param $sql
      * @return bool|int
-     * @throws DebugException
+     * @throws Exception
      */
     public function exec($sql)
     {
@@ -335,7 +335,7 @@ abstract class Connection implements PdoInterface
     /**
      * 检查是否在一个事务内
      * @return bool
-     * @throws DebugException
+     * @throws Exception
      */
     public function inTransaction()
     {
@@ -345,7 +345,7 @@ abstract class Connection implements PdoInterface
 
     /**
      * 开启事务
-     * @throws DebugException
+     * @throws Exception
      */
     public function beginTransaction()
     {
@@ -355,7 +355,7 @@ abstract class Connection implements PdoInterface
 
     /**
      * 提交事务
-     * @throws DebugException
+     * @throws Exception
      */
     public function commit()
     {
@@ -365,7 +365,7 @@ abstract class Connection implements PdoInterface
 
     /**
      * 回滚
-     * @throws DebugException
+     * @throws Exception
      */
     public function rollBack()
     {
@@ -378,7 +378,7 @@ abstract class Connection implements PdoInterface
      * @param $sqlMap
      * @param $parameterMap
      * @return \PDOStatement
-     * @throws DebugException
+     * @throws Exception
      */
     protected function getStatement($sql, $sqlMap, $parameterMap)
     {
@@ -398,14 +398,14 @@ abstract class Connection implements PdoInterface
      * @param $sql
      * @param array $sqlMap
      * @return string
-     * @throws DebugException
+     * @throws Exception
      */
     protected function sqlMap($sql, array $sqlMap)
     {
         $replacePairs = array();
         foreach ($sqlMap as $key => $value) {
             if (!is_string($value)) {
-                throw new \DebugException('替换参数值必须是字符串。');
+                throw new \Exception('替换参数值必须是字符串。');
             }
             $replacePairs["#" . $key . "#"] = $value;
         }
@@ -416,13 +416,13 @@ abstract class Connection implements PdoInterface
      * 绑定数据
      * @param array $params
      * @param \PDOStatement $sth
-     * @throws DebugException
+     * @throws Exception
      */
     protected function bindValues(array $params, \PDOStatement $sth)
     {
         foreach ($params as $parameter => $value) {
             if (is_array($value) || is_object($value)) {
-                throw new \DebugException('Sql绑定参数不能为数组或对象.');
+                throw new \Exception('Sql绑定参数不能为数组或对象.');
             }
             $dataType = $this->paramType[strtolower(gettype($value))];
             $sth->bindValue($parameter, $value, $dataType);
@@ -436,7 +436,7 @@ abstract class Connection implements PdoInterface
      * @param array $sqlMap
      * @param array $parameterMap
      * @return mixed|string
-     * @throws DebugException
+     * @throws Exception
      */
     public function debug($sql, $sqlMap = array(), $parameterMap = array())
     {

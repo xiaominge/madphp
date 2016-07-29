@@ -66,10 +66,12 @@ class Mysql extends Connection
         $dbname = isset($dbConfig['dbname']) ? $dbConfig['dbname'] : $this->dbname;
         $dsn = 'mysql:host=' . $dbModalityConfig['host'] . ';port=' . $dbModalityConfig['port'] . ';dbname=' . $dbname;
         $options = array(
+            \PDO::ATTR_TIMEOUT => isset($server['timeout']) ? $server['timeout'] : 3,
             \PDO::ATTR_PERSISTENT => isset($server['persistent']) ? $server['persistent'] : false,
             \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES " . $charset,
         );
         try {
+
             self::$connections[$connection_key] = new \PDO(
                 $dsn, $dbModalityConfig['username'], $dbModalityConfig['password'], $options
             );
@@ -78,7 +80,7 @@ class Mysql extends Connection
                 self::$connections[$connection_key]->setAttribute($key, $val);
             }
         } catch (\PDOException $e) {
-            throw new \DebugException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            throw new \Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
 
         return self::$connections[$connection_key];
