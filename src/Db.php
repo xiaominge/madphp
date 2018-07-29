@@ -6,7 +6,6 @@
  */
 
 namespace Madphp;
-Db\Factory::registry();
 
 class Db
 {
@@ -14,14 +13,16 @@ class Db
     {
 
     }
-    
+
     public static function pdo($dbname, $config = array(), $type = "mysql")
     {
-        return Db\Factory::getInstance('pdo')->createDb($dbname, $config, $type);
+        $pdoFactory = new Db\PdoFactory;
+        return $pdoFactory->create($dbname, $config, $type);
     }
-    
+
     public static function mongo($dbname, $config = array())
     {
-        return Db\Factory::getInstance('mongo')->createDb($dbname, $config);
+        $mongoFactory = new Db\MongoFactory();
+        return $mongoFactory->create($dbname, $config);
     }
 }

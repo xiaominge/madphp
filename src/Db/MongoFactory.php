@@ -2,7 +2,7 @@
 
 namespace Madphp\Db;
 
-class MongoFactory
+class MongoFactory extends Factory
 {
 
     public static $modality = 'read';

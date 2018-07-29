@@ -2,7 +2,7 @@
 
 namespace Madphp\Db;
 
-class PdoFactory
+class PdoFactory extends Factory
 {
 
     public static $instances = array();
