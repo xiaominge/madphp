@@ -150,7 +150,7 @@ abstract class Connection implements PdoInterface
      * @param $sql
      * @param array $parameterMap
      * @param array $sqlMap
-     * @return Result
+     * @return $this
      */
     public function insert($sql, array $parameterMap = array(), array $sqlMap = array())
     {
@@ -161,10 +161,10 @@ abstract class Connection implements PdoInterface
 
     /**
      * 更新数据
-     * @param string $sql
-     * @param array $parameterMap
+     * @param $sql
      * @param array $sqlMap
-     * @return Result
+     * @param array $parameterMap
+     * @return $this
      */
     public function update($sql, $sqlMap = array(), $parameterMap = array())
     {
@@ -175,10 +175,10 @@ abstract class Connection implements PdoInterface
 
     /**
      * 删除数据
-     * @param string $sql
-     * @param array $parameterMap
+     * @param $sql
      * @param array $sqlMap
-     * @return Result
+     * @param array $parameterMap
+     * @return $this
      */
     public function delete($sql, $sqlMap = array(), $parameterMap = array())
     {
@@ -190,8 +190,7 @@ abstract class Connection implements PdoInterface
     /**
      * 原生Query
      * @param $sql
-     * @return \PDOStatement
-     * @throws DebugException
+     * @return mixed
      */
     public function query($sql)
     {
@@ -202,8 +201,7 @@ abstract class Connection implements PdoInterface
     /**
      * 执行插入修改或删除
      * @param $sql
-     * @return bool|int
-     * @throws Exception
+     * @return mixed
      */
     public function exec($sql)
     {
